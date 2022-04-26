@@ -16,4 +16,4 @@ add_executable(tinySTL
         src/core/allocator/memory.h
         src/utils/profiler.h
         src/main.cpp
-        src/core/iterator/iterator_traits.h)
+        src/core/iterator/iterator.h)
