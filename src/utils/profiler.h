@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MY_PROFILER_H
-#define MY_PROFILER_H
+#ifndef TINYSTL_PROFILER_H
+#define TINYSTL_PROFILER_H
 
 #include <chrono>
 #include <iostream>
@@ -32,4 +32,4 @@ namespace ttl {
 
 }  // namespace ttl
 
-#endif  // !MY_PROFILER_H
+#endif

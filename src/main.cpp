@@ -1,5 +1,5 @@
 #include "./utils/profiler.h"
-#include "./allocator/memory.h"
+#include "./core/allocator/memory.h"
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -17,6 +17,7 @@ int main() {
             auto_timer timer("stl");
             std::uninitialized_fill(ptr, ptr + 1000000, "123");
         }
+        allocator.deallocate(ptr, 1000000);
     }
     {
         ttl::allocator<string> allocator;
@@ -25,6 +26,7 @@ int main() {
             auto_timer timer("ttl");
             ttl::uninitialized_fill(ptr, ptr + 1000000, "123");
         }
+        allocator.deallocate(ptr, 1000000);
     }
     return 0;
 }

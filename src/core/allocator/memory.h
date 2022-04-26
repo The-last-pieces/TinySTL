@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MY_ALLOCATOR_H
-#define MY_ALLOCATOR_H
+#ifndef TINYSTL_MEMORY_H
+#define TINYSTL_MEMORY_H
 
 #include <memory>
 /*

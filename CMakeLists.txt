@@ -4,16 +4,16 @@ project(tinySTL)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(src)
-include_directories(src/adapter)
-include_directories(src/algorithm)
-include_directories(src/allocator)
-include_directories(src/container)
-include_directories(src/functor)
-include_directories(src/iterator)
+include_directories(src/core/adapter)
+include_directories(src/core/algorithm)
+include_directories(src/core/allocator)
+include_directories(src/core/container)
+include_directories(src/core/functor)
+include_directories(src/core/iterator)
 include_directories(src/utils)
 
 add_executable(tinySTL
-        src/allocator/memory.h
+        src/core/allocator/memory.h
         src/utils/profiler.h
         src/main.cpp
-        )
+        src/core/iterator/iterator_traits.h)
