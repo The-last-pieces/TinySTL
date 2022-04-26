@@ -5,7 +5,7 @@
 #include <chrono>
 #include <iostream>
 
-namespace tstd {
+namespace ttl {
 
     using namespace std::chrono;
 
@@ -26,6 +26,6 @@ namespace tstd {
         }
     };
 
-}  // namespace tstd
+}  // namespace ttl
 
 #endif  // !MY_PROFILER_H

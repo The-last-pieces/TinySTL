@@ -13,7 +13,7 @@ include_directories(src/iterator)
 include_directories(src/utils)
 
 add_executable(tinySTL
-        src/allocator/allocator.h
+        src/allocator/memory.h
         src/utils/profiler.h
         src/main.cpp
         )
