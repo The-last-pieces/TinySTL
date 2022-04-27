@@ -85,7 +85,7 @@ namespace ttl {
     };
 
     /*
-     * 操作未初始化内存的几个函数
+     * 未初始化内存上的操作
      * Todo POD类型的优化
      * Todo char*的优化 memmove
      */
@@ -117,6 +117,44 @@ namespace ttl {
                 ::new(const_cast<void *>
                       (static_cast<const volatile void *>
                         (std::addressof(*current)))) T(*first);
+            }
+            return current;
+        } catch (...) {
+            for (; result != current; ++result) {
+                result->~T();
+            }
+            throw;
+        }
+    }
+
+    template<typename InputIt, typename NoThrowForwardIt>
+    NoThrowForwardIt uninitialized_move(InputIt first, InputIt last, NoThrowForwardIt result) {
+        using T = typename std::iterator_traits<InputIt>::value_type;
+        NoThrowForwardIt current = result;
+        try {
+            for (; first != last; ++first, ++current) {
+                ::new(const_cast<void *>
+                      (static_cast<const volatile void *>
+                        (std::addressof(*current)))) T(std::move(*first));
+            }
+            return current;
+        } catch (...) {
+            for (; result != current; ++result) {
+                result->~T();
+            }
+            throw;
+        }
+    }
+
+    template<typename InputIt, typename NoThrowForwardIt>
+    NoThrowForwardIt uninitialized_move_n(InputIt first, size_t n, NoThrowForwardIt result) {
+        using T = typename std::iterator_traits<InputIt>::value_type;
+        NoThrowForwardIt current = result;
+        try {
+            for (; n > 0; ++first, ++current, --n) {
+                ::new(const_cast<void *>
+                      (static_cast<const volatile void *>
+                        (std::addressof(*current)))) T(std::move(*first));
             }
             return current;
         } catch (...) {
@@ -165,6 +203,58 @@ namespace ttl {
         }
     }
 
+    template<typename ForwardIt, typename T>
+    ForwardIt uninitialized_default_construct(ForwardIt first, ForwardIt last, const T &x) {
+        using V = typename std::iterator_traits<ForwardIt>::value_type;
+        ForwardIt current = first;
+        try {
+            for (; current != last; ++current) {
+                ::new(const_cast<void *>
+                      (static_cast<const volatile void *>
+                        (std::addressof(*current)))) V();
+            }
+            return current;
+        } catch (...) {
+            for (; first != current; ++first) {
+                first->~V();
+            }
+            throw;
+        }
+    }
+
+    template<typename ForwardIt, typename T>
+    ForwardIt uninitialized_default_construct_n(ForwardIt first, size_t n, const T &x) {
+        using V = typename std::iterator_traits<ForwardIt>::value_type;
+        ForwardIt current = first;
+        try {
+            for (; n > 0; ++current, --n) {
+                ::new(const_cast<void *>
+                      (static_cast<const volatile void *>
+                        (std::addressof(*current)))) V();
+            }
+            return current;
+        } catch (...) {
+            for (; first != current; ++first) {
+                first->~V();
+            }
+            throw;
+        }
+    }
+
+    template<typename ForwardIt>
+    void destroy(ForwardIt first, ForwardIt last) {
+        for (; first != last; ++first) destroy_at(first);
+    }
+
+    template<typename T>
+    void destroy_at(T *x) {
+        x->~T();
+    }
+
+    template<typename T, size_t N>
+    void destroy_at(T(*x)[N]) {
+        for (auto ptr: x) destroy_at(ptr);
+    }
 }  // namespace ttl
 
 #endif
