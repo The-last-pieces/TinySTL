@@ -39,18 +39,18 @@ namespace ttl {
 
     public:
         // 获取一个对象的真实地址(即使重载了&运算符)
-        pointer address(reference x) const {
+        static pointer address(reference x) {
             return reinterpret_cast<pointer>(&const_cast<char &>
             (reinterpret_cast<const volatile char &>(x)));
         }
 
-        const_pointer address(const_reference x) const {
+        static const_pointer address(const_reference x) {
             return reinterpret_cast<const_pointer>(&const_cast<char &>
             (reinterpret_cast<const volatile char &>(x)));
         }
 
         // 分配足够储存n个T对象的内存片段,不进行构造
-        pointer allocate(size_type n) const {
+        static pointer allocate(size_type n) {
             if (max_size() / sizeof(T) < n) {
                 throw std::bad_array_new_length();
             }
@@ -62,24 +62,24 @@ namespace ttl {
         }
 
         // 回收allocate分配的地址
-        void deallocate(pointer p, size_type) const {
+        static void deallocate(pointer p, size_type) {
             ::operator delete(p);
         }
 
         // 最大可分配长度
-        [[nodiscard]] constexpr size_type max_size() const {
-            return std::numeric_limits<size_type>::max();
+        constexpr static size_type max_size() {
+            return std::numeric_limits<size_type>::max() / sizeof(T);
         }
 
         // 进行布置构造
         template<class U, class... Args>
-        void construct(U *p, Args &&... args) {
+        static void construct(U *p, Args &&... args) {
             new(static_cast<const void *>(p)) T(std::forward<Args>(args)...);
         }
 
         // 进行主动析构
         template<class U>
-        void destroy(U *p) {
+        static void destroy(U *p) {
             p->~U();
         }
     };
@@ -203,8 +203,8 @@ namespace ttl {
         }
     }
 
-    template<typename ForwardIt, typename T>
-    ForwardIt uninitialized_default_construct(ForwardIt first, ForwardIt last, const T &x) {
+    template<typename ForwardIt>
+    ForwardIt uninitialized_default_construct(ForwardIt first, ForwardIt last) {
         using V = typename std::iterator_traits<ForwardIt>::value_type;
         ForwardIt current = first;
         try {
@@ -222,8 +222,8 @@ namespace ttl {
         }
     }
 
-    template<typename ForwardIt, typename T>
-    ForwardIt uninitialized_default_construct_n(ForwardIt first, size_t n, const T &x) {
+    template<typename ForwardIt>
+    ForwardIt uninitialized_default_construct_n(ForwardIt first, size_t n) {
         using V = typename std::iterator_traits<ForwardIt>::value_type;
         ForwardIt current = first;
         try {
@@ -241,19 +241,18 @@ namespace ttl {
         }
     }
 
-    template<typename ForwardIt>
-    void destroy(ForwardIt first, ForwardIt last) {
-        for (; first != last; ++first) destroy_at(first);
-    }
-
     template<typename T>
     void destroy_at(T *x) {
         x->~T();
     }
 
-    template<typename T, size_t N>
-    void destroy_at(T(*x)[N]) {
-        for (auto ptr: x) destroy_at(ptr);
+    template<typename ForwardIt>
+    void destroy(ForwardIt first, ForwardIt last) {
+        using V = typename std::iterator_traits<ForwardIt>::value_type;
+        if constexpr(std::is_pod<V>::value) {
+            return;
+        }
+        for (; first != last; ++first) ttl::destroy_at(ttl::allocator<V>::address(*first));
     }
 }  // namespace ttl
 
