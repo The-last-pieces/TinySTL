@@ -1,32 +1,11 @@
-#include "./utils/profiler.h"
-#include "./core/allocator/memory.h"
-#include <iostream>
-#include <algorithm>
-#include <vector>
-#include <string>
+#include "./tests/memory_test.h"
+#include "./tests/vector_test.h"
 
-using namespace std;
-using namespace ttl;
+using namespace ttl::ttl_test;
 
 // write all test code
 int main() {
-    {
-        std::allocator<string> allocator;
-        auto *ptr = allocator.allocate(1000000);
-        {
-            auto_timer timer("stl");
-            std::uninitialized_fill(ptr, ptr + 1000000, "123");
-        }
-        allocator.deallocate(ptr, 1000000);
-    }
-    {
-        ttl::allocator<string> allocator;
-        auto *ptr = allocator.allocate(1000000);
-        {
-            auto_timer timer("ttl");
-            ttl::uninitialized_fill(ptr, ptr + 1000000, "123");
-        }
-        allocator.deallocate(ptr, 1000000);
-    }
+    vector_test::runAll();
+    memory_test::runAll();
     return 0;
 }
