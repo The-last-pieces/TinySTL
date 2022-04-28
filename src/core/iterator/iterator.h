@@ -176,11 +176,11 @@ namespace ttl {
             return lhs.current >= rhs.current;
         }
 
-        friend bool operator-(const normal_iterator &lhs, const normal_iterator &rhs) {
+        friend difference_type operator-(const normal_iterator &lhs, const normal_iterator &rhs) {
             return lhs.current - rhs.current;
         }
 
-        friend bool operator+(difference_type n, const normal_iterator &rhs) {
+        friend normal_iterator operator+(difference_type n, const normal_iterator &rhs) {
             return rhs + n;
         }
     };
