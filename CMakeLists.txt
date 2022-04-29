@@ -18,4 +18,7 @@ add_executable(tinySTL
         src/main.cpp
         src/core/iterator/iterator.h
         src/core/container/vector.h
-        src/core/algorithm/algorithm.h src/tests/vector_test.h src/tests/memory_test.h)
+        src/core/algorithm/algorithm.h
+        src/tests/vector_test.h
+        src/tests/memory_test.h
+        src/utils/test_helper.h)
