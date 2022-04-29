@@ -52,7 +52,7 @@
 
 - [ ] array  
   静态数组
-- [ ] vector  
+- [x] vector  
   动态数组
 - [ ] list  
   双向链表
