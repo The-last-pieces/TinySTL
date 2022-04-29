@@ -74,7 +74,9 @@ namespace ttl {
         // 进行布置构造
         template<class U, class... Args>
         static void construct(U *p, Args &&... args) {
-            new(static_cast<const void *>(p)) T(std::forward<Args>(args)...);
+            new(const_cast<void *>
+                (static_cast<const volatile void *>(p)))
+                    T(std::forward<Args>(args)...);
         }
 
         // 进行主动析构
