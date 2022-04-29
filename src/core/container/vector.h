@@ -202,14 +202,14 @@ namespace ttl {
         iterator insert(const_iterator pos, const value_type &value) {
             size_t i = pos - cbegin();
             m_prepare_insert(i, 1);
-            ttl::uninitialized_fill_n(start + i, 1, value);
+            alloc_type::construct(start + i, value);
             return begin() + i;
         }
 
         iterator insert(const_iterator pos, value_type &&value) {
             size_t i = pos - cbegin();
             m_prepare_insert(i, 1);
-            ttl::uninitialized_move_n(start + i, 1, std::move(value));
+            alloc_type::construct(start + i, std::move(value));
             return begin() + i;
         }
 
@@ -269,7 +269,7 @@ namespace ttl {
         }
 
         void pop_back() {
-            alloc_type::destroy(finish--);
+            alloc_type::destroy(--finish);
         }
 
         void resize(size_type new_size) {
