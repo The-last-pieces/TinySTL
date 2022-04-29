@@ -17,6 +17,7 @@ namespace ttl::ttl_test {
             test1();
             test2();
             test3();
+            test4();
         }
 
     private:
@@ -68,6 +69,17 @@ namespace ttl::ttl_test {
                 v.erase(v.end() - 122);
                 v.erase(v.begin() + 1123, v.end() - 3456);
             }, "vector class insert & erase");
+            same(sa, ta);
+        }
+
+        static void test4() {
+            std::vector<std::string> sa;
+            ttl::vector<std::string> ta;
+            TTL_STL_COMPARE(ta, sa, {
+                v.assign({"asd", "bds"});
+                v.assign(10000, "1234");
+                v.operator=({"1", "2"});
+            }, "vector assign");
             same(sa, ta);
         }
     };
