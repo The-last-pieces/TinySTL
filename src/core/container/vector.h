@@ -11,6 +11,7 @@
 
 namespace ttl {
 
+    // Todo 特化vector bool
     template<typename T, typename Alloc = ttl::allocator<T>>
     class vector {
     private:
@@ -278,6 +279,9 @@ namespace ttl {
                     recall_capacity(new_size);
                 }
                 finish = ttl::uninitialized_default_construct_n(finish, new_size - cur_size);
+            } else {
+                ttl::destroy(start + new_size, finish);
+                finish = start + new_size;
             }
         }
 
@@ -288,6 +292,9 @@ namespace ttl {
                     recall_capacity(new_size);
                 }
                 finish = ttl::uninitialized_fill_n(finish, new_size - cur_size, val);
+            } else {
+                ttl::destroy(start + new_size, finish);
+                finish = start + new_size;
             }
         }
 
@@ -332,7 +339,7 @@ namespace ttl {
         }
 
 #pragma endregion
-    private: // helper
+    private: // helper  Todo 使用memmove优化
 #pragma region
 
         // 移除一个元素
@@ -341,13 +348,15 @@ namespace ttl {
             return m_erase(pos, pos + 1);
         }
 
+        // [first, last)
         iterator m_erase(iterator first, iterator last) {
-            if (first == last) return last;
-            if (last == end()) return end();
-            iterator next = first + 1;
-            for (; next != last; ++next, ++first) *first = std::move(*next);
-            ttl::destroy(last, end());
-            finish = last.base();
+            if (first >= last) return last;
+            if (first == end()) return end();
+            iterator next = last;
+            // [last, end()) => [first, first + end()-last)
+            for (; next < end(); ++next, ++first) *first = std::move(*next);
+            ttl::destroy(first, end());
+            finish = first.base();
             return first;
         }
 
@@ -360,12 +369,13 @@ namespace ttl {
             }
             // [tail, finish) => [tail+n, finish+n)
             pointer tail = start + pos;
+            std::uninitialized_default_construct_n(finish, n);
             // 从后往前移动空出n个位置, 并析构原来的元素
             for (pointer l = finish - 1, r = l + n; l >= tail; --l, --r) {
                 *r = std::move(*l);
             }
             // 析构剩余元素
-            ttl::destroy(tail, tail + n - 1);
+            ttl::destroy(tail, ttl::min(tail + n, finish));
             finish += n;
         }
 
