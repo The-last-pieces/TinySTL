@@ -25,7 +25,7 @@ namespace ttl::ttl_test {
             ttl::allocator<std::string> tv;
             std::allocator<std::string> sv;
             TTL_STL_COMPARE(tv, sv, {
-                for (int i = 1; i <= 100000; ++i) v.deallocate(v.allocate(i), i);
+                for (int i = 1; i <= 1000; ++i) v.deallocate(v.allocate(i), i);
             }, "alloc speed");
 
         }
@@ -35,11 +35,11 @@ namespace ttl::ttl_test {
             std::allocator<std::string> allocator;
             auto *ptr = allocator.allocate(10000000);
             {
-                auto_timer timer("stl");
+                auto_timer timer("stl fill");
                 std::uninitialized_fill(ptr, ptr + 1000000, "hello world");
             }
             {
-                auto_timer timer("ttl");
+                auto_timer timer("ttl fill");
                 ttl::uninitialized_fill(ptr + 10000000 - 1000000, ptr + 10000000, "hello world");
             }
             allocator.deallocate(ptr, 10000000);
