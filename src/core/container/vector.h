@@ -31,7 +31,8 @@ namespace ttl {
     public: // iter Todo
         using iterator = ttl::normal_iterator<pointer, vector>;
         using const_iterator = iterator;
-        using reverse_iterator = iterator;
+        using reverse_iterator = ttl::reverse_iterator<iterator>;
+        using const_reverse_iterator = ttl::reverse_iterator<const_iterator>;
     public: // constructor
 #pragma region
 
@@ -77,6 +78,7 @@ namespace ttl {
         }
 
         vector &operator=(vector &&x) noexcept {
+            if (this == &x) return *this;
             move_storage(x);
             return *this;
         }
@@ -86,7 +88,7 @@ namespace ttl {
             return *this;
         }
 
-        void assign(size_type n, const T &value) {
+        void assign(size_type n, const value_type &value) {
             destroy_storage();
             if (n > capacity()) { // 需要扩容
                 deallocate_storage();
@@ -162,9 +164,13 @@ namespace ttl {
 
         const_iterator cend() const { return const_iterator(finish); }
 
-        reverse_iterator rbegin() const { return reverse_iterator(start); }
+        reverse_iterator rbegin() const { return reverse_iterator(--end()); }
 
-        reverse_iterator rend() const { return reverse_iterator(finish); }
+        reverse_iterator rend() const { return reverse_iterator(--begin()); }
+
+        const_reverse_iterator crbegin() const { return const_reverse_iterator(--cend()); }
+
+        const_reverse_iterator crend() const { return const_reverse_iterator(--cbegin()); }
 
 #pragma endregion
     public: // capacity
