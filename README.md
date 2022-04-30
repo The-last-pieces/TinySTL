@@ -108,6 +108,8 @@
   线段树
 - [ ] skip_list  
   跳表
+- [ ] lru_list
+  LRU缓存
 - [ ] trie  
   字典树
 - [ ] AVL-tree  
