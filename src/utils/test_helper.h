@@ -14,23 +14,55 @@
 namespace ttl::ttl_test {
 #define TTL_STL_COMPARE(tv, sv, code, name)         \
     do{                                             \
+        free_timer timer;                           \
+        time_type s_cost,t_cost;                    \
+        printf("%-30s : stl ~", (name));            \
         {                                           \
         auto &v = sv;                               \
-        auto_timer timer("stl " name);              \
+        timer.start();                              \
         {code;}                                     \
+        s_cost = timer.get_ns();                    \
         }                                           \
+        printf(" ttl ~");                           \
         {                                           \
         auto &v = tv;                               \
-        auto_timer timer("ttl " name);              \
+        timer.start();                              \
         {code;}                                     \
+        t_cost = timer.get_ns();                    \
         }                                           \
+        report(t_cost, s_cost);                     \
     }while(false)                                   \
 
 
-    int randInt(int l = 0, int r = RAND_MAX) {
+#define TTL_STL_COMPARE_2(t_code, s_code, name)     \
+    do{                                             \
+        free_timer timer;                           \
+        time_type s_cost,t_cost;                    \
+        printf("%-30s : stl ~", (name));            \
+        timer.start();                              \
+        {s_code;}                                   \
+        s_cost = timer.get_ns();                    \
+        printf(" ttl ~");                           \
+        timer.start();                              \
+        {t_code;}                                   \
+        t_cost = timer.get_ns();                    \
+        report(t_cost, s_cost);                     \
+    }while(false)                                   \
+
+
+    void report(time_type t_cost, time_type s_cost) {
+        printf(" , %.2lf/%.2lf ms , %s\n",
+               double(t_cost) / 1e6, double(s_cost) / 1e6, t_cost > s_cost ? "win" : "lose");
+    }
+
+    int randInt(int l, int r) {
         static auto maker = std::mt19937(clock());
         return int(maker()) % (r - l) + l;
     }
+
+    int randInt(int up) { return randInt(0, up); }
+
+    int randInt() { return randInt(0, RAND_MAX); }
 
     std::string randStr(int len, const char *base = nullptr) {
         std::string ret;
