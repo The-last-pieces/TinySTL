@@ -54,7 +54,7 @@
   静态数组
 - [x] vector  
   动态数组
-- [ ] list  
+- [x] list  
   双向链表
 - [ ] deque  
   双端队列
@@ -108,7 +108,7 @@
   线段树
 - [ ] skip_list  
   跳表
-- [ ] lru_list
+- [ ] lru_list  
   LRU缓存
 - [ ] trie  
   字典树
