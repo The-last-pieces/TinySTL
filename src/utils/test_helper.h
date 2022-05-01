@@ -15,13 +15,13 @@ namespace ttl::ttl_test {
 #define TTL_STL_COMPARE(tv, sv, code, name)         \
     do{                                             \
         {                                           \
-        auto &v = tv;                               \
-        auto_timer timer("ttl " name);              \
+        auto &v = sv;                               \
+        auto_timer timer("stl " name);              \
         {code;}                                     \
         }                                           \
         {                                           \
-        auto &v = sv;                               \
-        auto_timer timer("stl " name);              \
+        auto &v = tv;                               \
+        auto_timer timer("ttl " name);              \
         {code;}                                     \
         }                                           \
     }while(false)                                   \
@@ -41,6 +41,14 @@ namespace ttl::ttl_test {
     template<typename T1, typename T2>
     static void same(const T1 &sa, const T2 &ta) {
         assert(ttl::equal(sa.begin(), sa.end(), ta.begin(), ta.end()));
+    }
+
+    template<typename T, typename Callable>
+    std::vector<T> randArray(int len, Callable call) {
+        std::vector<T> ret;
+        ret.reserve(len);
+        while (len--) ret.template emplace_back(call());
+        return ret;
     }
 }
 
