@@ -54,7 +54,7 @@
   静态数组
 - [x] vector  
   动态数组
-- [x] list  
+- [ ] list  
   双向链表
 - [ ] deque  
   双端队列
