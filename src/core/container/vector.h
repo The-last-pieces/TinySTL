@@ -164,13 +164,13 @@ namespace ttl {
 
         const_iterator cend() const { return const_iterator(finish); }
 
-        reverse_iterator rbegin() const { return reverse_iterator(--end()); }
+        reverse_iterator rbegin() const { return reverse_iterator(end()); }
 
-        reverse_iterator rend() const { return reverse_iterator(--begin()); }
+        reverse_iterator rend() const { return reverse_iterator(begin()); }
 
-        const_reverse_iterator crbegin() const { return const_reverse_iterator(--cend()); }
+        const_reverse_iterator crbegin() const { return const_reverse_iterator(cend()); }
 
-        const_reverse_iterator crend() const { return const_reverse_iterator(--cbegin()); }
+        const_reverse_iterator crend() const { return const_reverse_iterator(cbegin()); }
 
 #pragma endregion
     public: // capacity
