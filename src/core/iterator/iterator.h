@@ -386,6 +386,26 @@ namespace ttl {
         inline void advance_imp(RandomAccessIterator &i, Distance n, random_access_iterator_tag) {
             i += n;
         }
+
+        template<typename InputIterator>
+        typename ttl::iterator_traits<InputIterator>::difference_type
+        distance_imp(InputIterator first, InputIterator last, input_iterator_tag) {
+            typename ttl::iterator_traits<InputIterator>::difference_type ret = 0;
+            while (first != last) ++first, ++ret;
+            return ret;
+        }
+
+        template<typename RandomAccessIterator>
+        typename ttl::iterator_traits<RandomAccessIterator>::difference_type
+        distance_imp(RandomAccessIterator first, RandomAccessIterator last, random_access_iterator_tag) {
+            return last - first;
+        }
+    }
+
+    template<typename InputIt>
+    typename ttl::iterator_traits<InputIt>::difference_type
+    distance(InputIt first, InputIt last) {
+        return distance_imp(first, last, typename iterator_traits<InputIt>::iterator_category());
     }
 
     template<typename InputIt, typename Distance>
