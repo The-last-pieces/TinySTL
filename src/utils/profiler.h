@@ -27,6 +27,24 @@ namespace ttl {
         }
     };
 
+    /*
+     * 定制计时器
+     */
+    using time_type = unsigned long long;
+
+    class free_timer {
+        std::chrono::system_clock::time_point stamp;
+    public:
+        void start() {
+            stamp = std::chrono::system_clock::now();
+        }
+
+        time_type get_ns() {
+            return std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    std::chrono::system_clock::now() - stamp).count();
+        }
+    };
+
 }  // namespace ttl
 
 #endif
