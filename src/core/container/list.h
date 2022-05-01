@@ -96,7 +96,7 @@ namespace ttl {
             }
         };
 
-        class const_list_iterator : ttl::iterator<ttl::bidirectional_iterator_tag, const T> {
+        class const_list_iterator : public ttl::iterator<ttl::bidirectional_iterator_tag, const T> {
             friend class list;
 
             using Iterator = const list_base_node *;
@@ -356,7 +356,7 @@ namespace ttl {
         }
 
         iterator insert(const_iterator pos, value_type &&val) {
-            return insert_front_aux(pos.iter(), make_node_aux(val));
+            return insert_front_aux(pos.iter(), make_node_aux(std::move(val)));
         }
 
         iterator insert(const_iterator pos, size_type n, const value_type &val) {
@@ -421,7 +421,7 @@ namespace ttl {
         }
 
         void push_back(value_type &&val) {
-            emplace_back(val);
+            emplace_back(std::move(val));
         }
 
         void push_front(const value_type &val) {
@@ -429,7 +429,7 @@ namespace ttl {
         }
 
         void push_front(value_type &&val) {
-            emplace_front(val);
+            emplace_front(std::move(val));
         }
 
         template<typename ...Args>
@@ -441,30 +441,64 @@ namespace ttl {
             erase(cbegin());
         }
 
-        // Todo
-        void resize() {}
+        void resize(size_type n) {
+            resize(n, value_type());
+        }
 
-        void swap() {}
+        void resize(size_type n, const value_type &x) {
+            size_t cn = size();
+            if (n > cn) {
+                insert(cend(), n - cn, x);
+            } else if (n < cn) {
+                erase(at(n), cend());
+            }
+        }
 
-    private:
+        void swap(list &oth) {
+            std::swap(root, oth.root);
+        }
+
+#pragma endregion
+    private: // help change
+#pragma region
+
         // 在pos后面插入元素
         static iterator insert_back_aux(iterator it, list_base_node *node) {
-            // 更新pos->next , nxt->prev
+            // pos->node->nxt
             auto *pos = it.current;
             auto *nxt = pos->next;
-            pos->next = node, node->next = nxt;
-            nxt->prev = node, node->prev = pos;
+            hook(pos, node), hook(node, nxt);
             return iterator(node);
         }
 
         // 在pos前面插入元素
         static iterator insert_front_aux(iterator it, list_base_node *node) {
-            // 更新pos->prev , pre->next
+            // pre->node->nxt
             auto *pos = it.current;
             auto *pre = pos->prev;
-            pos->prev = node, node->prev = pre;
-            pre->next = node, node->next = pos;
+            hook(pre, node), hook(node, pos);
             return iterator(node);
+        }
+
+        // 在pos后面插入[first,last]
+        static void insert_back_aux(iterator it, list_base_node *first, list_base_node *last) {
+            // pos->first->....->last->nxt
+            auto *pos = it.current;
+            auto *nxt = pos->next;
+            hook(pos, first), hook(last, nxt);
+        }
+
+        // 在pos后面插入[first,last]
+        static void insert_front_aux(iterator it, list_base_node *first, list_base_node *last) {
+            // pre->first->....->last->pos
+            auto *pos = it.current;
+            auto *pre = pos->prev;
+            hook(pre, first), hook(last, pos);
+        }
+
+        // 连接pre<->nxt
+        static void hook(list_base_node *pre, list_base_node *nxt) {
+            pre->next = nxt, nxt->prev = pre;
         }
 
         // 创建实体结点
@@ -483,23 +517,137 @@ namespace ttl {
             --root.size;
         }
 
+        // 获取第i个元素的迭代器
+        iterator at(size_type i) const {
+            return i < size() / 2 ?
+                   ttl::next(begin(), difference_type(i)) :
+                   ttl::prev(end(), difference_type(size() - i));
+        }
+
 #pragma endregion
     public: // else operator Todo
 #pragma region
 
-        void merge() {}
+        // 合并两个有序列表,将oth中的节点移动到*this中(不检查有序)
+        void merge(list &&oth) {
+            merge(std::move(oth), std::less<>());
+        }
 
-        void splice() {}
+        template<typename Compare>
+        void merge(list &&oth, Compare compare) {
+            using base_pointer = list_base_node *;
+            using node_pointer = list_node *;
+            iterator insert_it = begin(), insert_end = end();
+            iterator input_it = oth.begin(), input_end = oth.end();
+            while (input_it != input_end) {
+                if (insert_it != insert_end && compare(*insert_it, *input_it)) {
+                    ++insert_it; // 等待>=待插入节点的位置或者end
+                } else {
+                    insert_it = insert_front_aux(insert_it, (input_it++).current);
+                }
+            }
+            oth.root.next = oth.root.tail;
+            root.size += oth.root.size;
+            oth.root.size = 0;
+        }
 
-        void remove() {}
+        // 从oth中直接移动指针节点到pos
+        void splice(const_iterator pos, list &&oth) {
+            splice(pos, std::move(oth), oth.cbegin(), oth.cend());
+        }
 
-        void remove_if() {}
+        void splice(const_iterator pos, list &oth) {
+            splice(pos, std::move(oth), oth.cbegin(), oth.cend());
+        }
 
-        void reverse() {}
+        void splice(const_iterator pos, list &&oth, const_iterator start) {
+            splice(pos, std::move(oth), start, oth.cend());
+        }
 
-        void unique() {}
+        void splice(const_iterator pos, list &oth, const_iterator start) {
+            splice(pos, std::move(oth), start, oth.cend());
+        }
 
-        void sort() {}
+        // 移动[first, last)到pos的前面
+        void splice(const_iterator pos, list &oth, const_iterator first, const_iterator last) {
+            splice(pos, std::move(oth), first, last);
+        }
+
+        void splice(const_iterator pos, list &&oth, const_iterator first, const_iterator last) {
+            if (first == last) return;
+            size_type n = ttl::distance(first, last);
+            this->root.size += n, oth.root.size -= n;
+            list_base_node *pre = first.iter().current->prev, *nxt = last.iter().current;
+            list_base_node *first_ptr = first.iter().current, *last_ptr = nxt->prev;
+            hook(pre, nxt), insert_front_aux(pos.iter(), first_ptr, last_ptr);
+        }
+
+        size_type remove(const T &value) {
+            size_type ret = 0;
+            for (auto it = cbegin(), ed = cend(); it != ed;) {
+                if (*it == value) it = erase(it), ++ret;
+                else ++it;
+            }
+            return ret;
+        }
+
+        template<class UnaryPredicate>
+        size_type remove_if(UnaryPredicate predicate) {
+            size_type ret = 0;
+            for (auto it = cbegin(), ed = cend(); it != ed;) {
+                if (predicate(*it)) it = erase(it), ++ret;
+                else ++it;
+            }
+            return ret;
+        }
+
+        void reverse() {
+            if (size() <= 1) return;
+            list_base_node *cur = root.next, *nxt, *tmp;
+            root.next = root.tail;
+            while (cur != root.tail) {
+                tmp = cur->next, nxt = root.next;
+                hook(&root, cur), hook(cur, nxt), cur = tmp;
+            }
+        }
+
+        size_type unique() {
+            if (size() <= 1) return 0;
+            size_type ret = 0;
+            for (auto it = cbegin(), ed = cend(), nxt = ttl::next(it); nxt != ed;) {
+                if (*it == *nxt) it = erase(it), ++ret;
+                else it = nxt;
+                nxt = ttl::next(it);
+            }
+            return ret;
+        }
+
+        template<class BinaryPredicate>
+        size_type unique(BinaryPredicate predicate) {
+            if (size() <= 1) return 0;
+            size_type ret = 0;
+            for (auto it = cbegin(), ed = cend(), nxt = ttl::next(it); nxt != ed;) {
+                if (predicate(*it, *nxt)) it = erase(it), ++ret;
+                else it = nxt;
+                nxt = ttl::next(it);
+            }
+            return ret;
+        }
+
+        // 原地排序
+        void sort() {
+            sort(std::less<>());
+        }
+
+        template<typename Compare>
+        void sort(Compare compare) {
+            if (this->size() <= 1) return;
+            list half;
+            half.splice(half.cend(), *this, at(size() / 2), end());
+            this->sort();
+            half.sort();
+            this->merge(std::move(half), compare);
+        }
 
 #pragma endregion
     };
