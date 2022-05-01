@@ -31,6 +31,7 @@ namespace ttl::ttl_test {
                 v.insert(-- -- --v.end(), 102420, "world");
                 v.emplace_back("hhh");
                 v.pop_front();
+                v.insert((++ ++ ++ ++ ++ ++v.rbegin()).base(), 13211, "asd");
                 v.pop_front();
                 v.erase(++ ++ ++v.begin(), -- -- --v.end());
             }, "list insert & remove");

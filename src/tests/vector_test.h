@@ -76,9 +76,10 @@ namespace ttl::ttl_test {
             std::vector<std::string> sa;
             ttl::vector<std::string> ta;
             TTL_STL_COMPARE(ta, sa, {
+                v.operator=({"1", "2"});
                 v.assign({"asd", "bds"});
                 v.assign(10000, "1234");
-                v.operator=({"1", "2"});
+                v.insert((v.rbegin() + 1020).base(), 123, "asd");
             }, "vector assign");
             same(sa, ta);
         }
