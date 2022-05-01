@@ -18,12 +18,14 @@ namespace ttl::ttl_test {
             test2();
             test3();
             test4();
+            test5();
         }
 
     private:
         static void test1() {
-            std::vector<std::string> arr;
-            for (int i = 0; i < 10000; ++i) arr.push_back(randStr(26));
+            auto arr = randArray<std::string>(
+                    10000,
+                    []() -> std::string { return randStr(26); });
             ttl::vector<std::string> ta;
             std::vector<std::string> sa;
             TTL_STL_COMPARE(ta, sa, {
@@ -41,8 +43,8 @@ namespace ttl::ttl_test {
                 v.insert(v.end() - 50, 10000u, 5);
                 v.insert(v.end(), 100u, 6);
                 v.insert(v.end() - 50, 1000u, 7);
-                // v.erase(v.end() - 2);
-                //v.erase(v.begin() + 1123, v.end() - 3456);
+                v.erase(v.end() - 2);
+                v.erase(v.begin() + 1123, v.end() - 3456);
             }, "vector pod insert & erase");
             same(sa, ta);
         }
@@ -81,6 +83,21 @@ namespace ttl::ttl_test {
                 v.assign(10000, "1234");
                 v.insert((v.rbegin() + 1020).base(), 123, "asd");
             }, "vector assign");
+            same(sa, ta);
+        }
+
+        static void test5() {
+            std::vector<std::string> sa;
+            ttl::vector<std::string> ta;
+            TTL_STL_COMPARE(ta, sa, {
+                v.assign({"asd", "bds"});
+                v.assign(10000, "1234");
+                v.resize(100);
+                v.resize(1000, "ab ab");
+                v.resize(10000, "12345");
+                v.resize(9900);
+                v.resize(99);
+            }, "vector resize");
             same(sa, ta);
         }
     };
