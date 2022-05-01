@@ -99,7 +99,7 @@ namespace ttl {
 
         template<typename InputIt>
         void assign(InputIt first, InputIt last) {
-            assign_aux(first, last, std::distance(first, last));
+            assign_aux(first, last, ttl::distance(first, last));
         }
 
         void assign(std::initializer_list<value_type> x) {
@@ -229,7 +229,7 @@ namespace ttl {
         // Todo 特化输入迭代器
         template<typename InputIt>
         iterator insert(const_iterator pos, InputIt first, InputIt last) {
-            size_t i = pos - cbegin(), n = std::distance(first, last);
+            size_t i = pos - cbegin(), n = ttl::distance(first, last);
             m_prepare_insert(i, n);
             ttl::uninitialized_copy(first, last, begin() + i);
             return begin() + i + n;
@@ -375,7 +375,7 @@ namespace ttl {
             }
             // [tail, finish) => [tail+n, finish+n)
             pointer tail = start + pos;
-            std::uninitialized_default_construct_n(finish, n);
+            ttl::uninitialized_default_construct_n(finish, n);
             // 从后往前移动空出n个位置, 并析构原来的元素
             for (pointer l = finish - 1, r = l + n; l >= tail; --l, --r) {
                 *r = std::move(*l);
@@ -448,7 +448,7 @@ namespace ttl {
 
         // 增长策略
         static size_type next_size(size_type cur) {
-            return (size_type) (1.5 * double(cur) + 4);
+            return (size_type)(1.5 * double(cur) + 4);
         }
 
 #pragma endregion
