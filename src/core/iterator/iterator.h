@@ -23,11 +23,60 @@ namespace ttl {
     };
 
     /*
+     * tag萃取
+     */
+    template<typename T>
+    struct iterator_tag_traits {
+    };
+#pragma region
+    template<>
+    struct iterator_tag_traits<input_iterator_tag> {
+        using type = input_iterator_tag;
+    };
+    template<>
+    struct iterator_tag_traits<std::input_iterator_tag> {
+        using type = input_iterator_tag;
+    };
+    template<>
+    struct iterator_tag_traits<output_iterator_tag> {
+        using type = input_iterator_tag;
+    };
+    template<>
+    struct iterator_tag_traits<std::output_iterator_tag> {
+        using type = output_iterator_tag;
+    };
+    template<>
+    struct iterator_tag_traits<forward_iterator_tag> {
+        using type = forward_iterator_tag;
+    };
+    template<>
+    struct iterator_tag_traits<std::forward_iterator_tag> {
+        using type = forward_iterator_tag;
+    };
+    template<>
+    struct iterator_tag_traits<bidirectional_iterator_tag> {
+        using type = bidirectional_iterator_tag;
+    };
+    template<>
+    struct iterator_tag_traits<std::bidirectional_iterator_tag> {
+        using type = bidirectional_iterator_tag;
+    };
+    template<>
+    struct iterator_tag_traits<random_access_iterator_tag> {
+        using type = random_access_iterator_tag;
+    };
+    template<>
+    struct iterator_tag_traits<std::random_access_iterator_tag> {
+        using type = random_access_iterator_tag;
+    };
+#pragma endregion
+
+    /*
      * 迭代器的类型萃取
      */
     template<typename T>
     struct iterator_traits {
-        using iterator_category = typename T::iterator_category;
+        using iterator_category = typename iterator_tag_traits<typename T::iterator_category>::type;
         using value_type = typename T::value_type;
         using difference_type = typename T::difference_type;
         using pointer = typename T::pointer;
@@ -316,6 +365,46 @@ namespace ttl {
         }
 
     };
+
+    /*
+     * 迭代器操作
+     */
+
+    namespace {
+        template<typename InputIterator, typename Distance>
+        inline void advance_imp(InputIterator &i, Distance n, input_iterator_tag) {
+            while (n--) ++i;
+        }
+
+        template<typename BidirectionalIterator, typename Distance>
+        inline void advance_imp(BidirectionalIterator &i, Distance n, bidirectional_iterator_tag) {
+            if (n > 0) while (n--) ++i;
+            else while (n++) --i;
+        }
+
+        template<typename RandomAccessIterator, typename Distance>
+        inline void advance_imp(RandomAccessIterator &i, Distance n, random_access_iterator_tag) {
+            i += n;
+        }
+    }
+
+    template<typename InputIt, typename Distance>
+    void advance(InputIt &it, Distance n) {
+        ttl::advance_imp(it, n, typename iterator_traits<InputIt>::iterator_category());
+    }
+
+    template<typename InputIt>
+    InputIt next(InputIt it, typename std::iterator_traits<InputIt>::difference_type n = 1) {
+        ttl::advance(it, n);
+        return it;
+    }
+
+    template<class BidirIt>
+    BidirIt prev(BidirIt it, typename std::iterator_traits<BidirIt>::difference_type n = 1) {
+        ttl::advance(it, -static_cast<std::make_signed_t<typename std::iterator_traits<BidirIt>::difference_type>>(n));
+        return it;
+    }
+
 }
 
 #endif //TINYSTL_ITERATOR_H
