@@ -244,7 +244,7 @@ namespace ttl {
         }
 
         reverse_iterator operator++(int) noexcept {
-            return normal_iterator(current--);
+            return reverse_iterator(current--);
         }
 
         // bi direct
@@ -254,7 +254,7 @@ namespace ttl {
         }
 
         reverse_iterator operator--(int) noexcept {
-            return normal_iterator(current++);
+            return reverse_iterator(current++);
         }
 
         // random
@@ -268,7 +268,7 @@ namespace ttl {
         }
 
         reverse_iterator operator+(difference_type n) const noexcept {
-            return normal_iterator(current - n);
+            return reverse_iterator(current - n);
         }
 
         reverse_iterator &operator-=(difference_type n) noexcept {
@@ -277,7 +277,7 @@ namespace ttl {
         }
 
         reverse_iterator operator-(difference_type n) const noexcept {
-            return normal_iterator(current + n);
+            return reverse_iterator(current + n);
         }
 
         const Iterator &base() const noexcept { return current; }
