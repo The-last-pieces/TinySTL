@@ -34,14 +34,15 @@ namespace ttl::ttl_test {
         static void test2() {
             std::allocator<std::string> allocator;
             auto *ptr = allocator.allocate(10000000);
-            {
-                auto_timer timer("stl fill");
-                std::uninitialized_fill(ptr, ptr + 1000000, "hello world");
-            }
-            {
-                auto_timer timer("ttl fill");
-                ttl::uninitialized_fill(ptr + 10000000 - 1000000, ptr + 10000000, "hello world");
-            }
+            TTL_STL_COMPARE_2(
+                    {
+                        ttl::uninitialized_fill(ptr + 10000000 - 1000000, ptr + 10000000, "hello world");
+                    },
+                    {
+                        std::uninitialized_fill(ptr, ptr + 1000000, "hello world");
+                    }, "fill"
+            );
+            ttl::equal(ptr + 10000000 - 1000000, ptr + 10000000, ptr, ptr + 1000000);
             allocator.deallocate(ptr, 10000000);
         }
     };
