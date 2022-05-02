@@ -38,11 +38,17 @@
 负责内存的配置和管理
 
 - [x] 内存分配器
-- [ ] 智能指针
+- [ ] shared_ptr
+- [ ] unique_ptr
+- [ ] weak_ptr
 
 ## 迭代器
 
 作为容器组件和算法组件的粘合剂
+
+- normal_iterator
+- reverse_iterator
+- 迭代器相关操作函数
 
 ## 容器
 
@@ -57,11 +63,13 @@
 - [x] list  
   双向链表
 - [ ] deque  
-  双端队列
+  双端列表
 - [ ] stack  
   栈
 - [ ] queue  
   队列
+- [ ] heap  
+  序列容器上的一系列操作函数
 - [ ] priority_queue  
   优先队列
 - [ ] forward_list  
@@ -94,14 +102,14 @@
 
 - [ ] bloom  
   布隆过滤器
+- [ ] bitmap  
+  定长bitmap
 - [ ] vbitmap  
   变长bitmap
 - [ ] mono_stack  
   单调栈
 - [ ] mono_queue  
   单调队列
-- [ ] heap  
-  堆
 - [ ] binary_indexed_tree  
   树状数组
 - [ ] segment_tree    
@@ -125,15 +133,65 @@
 
 以迭代器为核心的一系列算法
 
+- 不修改序列的操作
+- 修改序列的操作
+- 划分操作
+- 排序操作
+- 二分搜索操作(需要排序)
+- 集合操作(需要排序)
+- 其他已排序范围上的操作
+- 堆操作(见container.heap)
+- 最大/最小操作
+- 比较操作
+- 排列操作
+
 ## 仿函数
 
-实现std::function和以其为核心的一系列算法
+围绕仿函数的一系列class和func
+
+- function
+- bind
+- mem_fn
+- placeholder
+- not_fn
+- invoke
+- 运算符函数对象
+- 引用包装器
 
 ## 适配器
 
-实现STL中的适配器模式
+### 容器中的适配器模式
+
+- bid container
+    - stack
+        - mono_stack
+    - queue
+        - mono_queue
+- random container & heap
+    - priority_queue
+- RB-tree
+    - map
+    - set
+    - multimap
+    - multiset
+- hashtable
+    - unordered_map
+    - unordered_set
+    - unordered_multimap
+    - unordered_multiset
+
+### 核心容器
+
+- vector
+- list
+- hashtable
+- heap
+- deque
+- RB-tree
 
 # 代码约定
 
-命名空间:ttl  
-命名风格:小写_小写  
+命名空间 :  
+主功能 : ttl  
+测试代码 : ttl::ttl_test  
+命名风格 : 小写_小写  
