@@ -102,14 +102,14 @@
   单调队列
 - [ ] heap  
   堆
-- [ ] tree_array  
+- [ ] binary_indexed_tree  
   树状数组
 - [ ] segment_tree    
   线段树
 - [ ] skip_list  
   跳表
-- [ ] lru_list  
-  LRU缓存
+- [ ] linked_hashmap  
+  list+map实现,用例如LRU容器
 - [ ] trie  
   字典树
 - [ ] AVL-tree  
