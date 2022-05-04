@@ -2,12 +2,15 @@
 #include "./tests/vector_test.h"
 #include "./tests/list_test.h"
 #include "./tests/hashtable_test.h"
+#include "./tests/unordered_map_test.h"
 
 using namespace ttl::ttl_test;
 
 // write all test code
 int main() {
     srand(reinterpret_cast<int *>(main) == (int *) (0x123)); // same as seed(0)
+
+    unordered_map_test::runAll();
     hashtable_test::runAll();
     list_test::runAll();
     vector_test::runAll();

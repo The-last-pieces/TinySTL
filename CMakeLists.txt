@@ -23,4 +23,8 @@ add_executable(tinySTL
         src/tests/memory_test.h
         src/utils/test_helper.h
         src/core/container/list.h
-        src/tests/list_test.h)
+        src/tests/list_test.h
+        src/core/container/private/hashtable.h
+        src/tests/hashtable_test.h
+        src/core/container/unordered_map.h
+        src/tests/unordered_map_test.h)
