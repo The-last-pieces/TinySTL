@@ -51,13 +51,17 @@ namespace ttl::ttl_test {
 
 
     void report(time_type t_cost, time_type s_cost) {
-        printf(" , %.2lf/%.2lf ms , %s\n",
-               double(t_cost) / 1e6, double(s_cost) / 1e6, t_cost > s_cost ? "win" : "lose");
+        auto str = t_cost == s_cost ? "same" : (t_cost > s_cost ? "win" : "lose");
+        if (t_cost < 10000 && s_cost < 10000) {
+            printf(" , %.2lf/%.2lf \t\tns , %s\n", double(t_cost), double(s_cost), str);
+        } else {
+            printf(" , %.2lf/%.2lf \t\tms , %s\n", double(t_cost) / 1e6, double(s_cost) / 1e6, str);
+        }
     }
 
     int randInt(int l, int r) {
         static auto maker = std::mt19937(clock());
-        return int(maker()) % (r - l) + l;
+        return int(maker() % (r - l)) + l;
     }
 
     int randInt(int up) { return randInt(0, up); }
