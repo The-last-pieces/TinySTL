@@ -91,7 +91,7 @@
   哈希表,一系列O(1)容器的基础
 - [ ] unordered_set  
   无序集合
-- [ ] unordered_map  
+- [x] unordered_map  
   无序映射
 - [ ] unordered_multiset  
   无序可重复集合
