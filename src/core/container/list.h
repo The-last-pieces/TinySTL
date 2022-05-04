@@ -9,7 +9,7 @@
 #include "../iterator/iterator.h"
 
 namespace ttl {
-    template<typename T, typename Alloc = ttl::allocator<T>>
+    template<typename T> // , typename Alloc = ttl::allocator<T>
     class list {
     public:
         using value_type = T;
@@ -163,13 +163,11 @@ namespace ttl {
                 return lhs.current != rhs.current;
             }
         };
-
+#pragma endregion
     private:
         using alloc_type = ttl::allocator<T>;
         using base_alloc_type = ttl::allocator<list_base_node>;
         using node_alloc_type = ttl::allocator<list_node>;
-
-#pragma endregion
     private:
         list_root root{};
     public: // iter
@@ -525,7 +523,7 @@ namespace ttl {
         }
 
 #pragma endregion
-    public: // else operator Todo
+    public: // else operator
 #pragma region
 
         // 合并两个有序列表,将oth中的节点移动到*this中(不检查有序)
