@@ -57,6 +57,12 @@ namespace ttl {
             move_storage(x);
         }
 
+        template<typename InputIt>
+        vector(InputIt first, InputIt last) {
+            create_storage(ttl::distance(first, last));
+            finish = ttl::uninitialized_copy(first, last, start);
+        }
+
         vector(std::initializer_list<T> init) {
             create_storage(init.size());
             finish = ttl::uninitialized_copy(init.begin(), init.end(), start);
@@ -448,7 +454,7 @@ namespace ttl {
 
         // 增长策略
         static size_type next_size(size_type cur) {
-            return (size_type)(1.5 * double(cur) + 4);
+            return (size_type) (1.5 * double(cur) + 4);
         }
 
 #pragma endregion
