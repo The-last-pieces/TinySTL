@@ -75,7 +75,7 @@ namespace ttl::ttl_test {
     }
 
     template<typename T1, typename T2>
-    static void same(const T1 &sa, const T2 &ta) {
+    void same(const T1 &sa, const T2 &ta) {
         assert(ttl::equal(sa.begin(), sa.end(), ta.begin(), ta.end()));
     }
 
@@ -85,6 +85,10 @@ namespace ttl::ttl_test {
         ret.reserve(len);
         while (len--) ret.template emplace_back(call());
         return ret;
+    }
+
+    std::vector<int> randIntArray(int len) {
+        return randArray<int>(len, []() -> int { return randInt(); });
     }
 }
 
