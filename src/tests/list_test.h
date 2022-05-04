@@ -39,7 +39,7 @@ namespace ttl::ttl_test {
                 v.emplace_back("hhh");
                 v.insert(ttl::prev(v.rend(), 3000).base(), 13211, "asd");
             }, "list insert");
-            assert(ttl::equal(tl.begin(), tl.end(), sl.begin(), sl.end()));
+            same(sl, tl);
         }
 
         static void test2() {
@@ -53,7 +53,7 @@ namespace ttl::ttl_test {
                 v.erase(ttl::prev(v.rend(), 100).base(), ttl::next(v.begin(), 5000));
                 v.erase(ttl::next(v.begin(), 1000), ttl::next(v.begin(), 3000));
             }, "list erase");
-            assert(ttl::equal(tl.begin(), tl.end(), sl.begin(), sl.end()));
+            same(sl, tl);
         }
 
         static void test3() {
