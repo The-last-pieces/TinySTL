@@ -13,6 +13,15 @@
 namespace ttl::ttl_test {
 
     class hashtable_test {
+        template<typename T1, typename T2>
+        static void hmp_same(
+                ttl::hashtable<T1, T2> &tm,
+                std::unordered_multimap<T1, T2> &sm) {
+            std::unordered_multimap<T1, T2> tmp;
+            for (auto &kv: tm) tmp.insert(kv);
+            assert(tmp == sm);
+        }
+
     public:
         static void runAll() {
             test1();
@@ -25,59 +34,98 @@ namespace ttl::ttl_test {
 
     private:
         static void test1() { // unique add
-            auto_timer timer("hashtable unique add");
             ttl::hashtable<int, int> tm;
-            for (int i = 0; i < 10000; ++i) tm.emplace_unique(i % 100, i);
-            assert(tm.size() == 100);
+            std::unordered_multimap<int, int> sm;
+            std::vector<int> rd = randIntArray(10000);
+            TTL_STL_COMPARE_2(
+                    {
+                        for (auto x: rd)tm.emplace_unique(x, x);
+                    }, {
+                        for (auto x: rd)if (!sm.count(x))sm.insert({x, x});
+                    }, "hashtable unique add"
+            );
+            hmp_same(tm, sm);
         }
 
         static void test2() { // equal add
-            auto_timer timer("hashtable equal add");
             ttl::hashtable<int, int> tm;
-            for (int i = 0; i < 10000; ++i) tm.emplace_equal(randInt(100), i);
-            assert(tm.size() == 10000);
+            std::unordered_multimap<int, int> sm;
+            std::vector<int> rd = randIntArray(10000);
+            TTL_STL_COMPARE_2(
+                    {
+                        for (auto x: rd)tm.emplace_equal(x, x);
+                    }, {
+                        for (auto x: rd)sm.insert({x, x});
+                    }, "hashtable equal add"
+            );
+            hmp_same(tm, sm);
         }
 
         static void test3() { // erase
-            auto_timer timer("hashtable erase key");
             ttl::hashtable<int, int> tm;
-            for (int i = 0; i < 10000; ++i) tm.emplace_equal(randInt(100), i);
-            size_t sub = 0;
-            for (int i = 0; i < 100; ++i) sub += tm.erase(randInt(100));
-            assert(tm.size() + sub == 10000);
+            std::unordered_multimap<int, int> sm;
+            std::vector<int> rd = randIntArray(10000);
+            std::vector<int> rde = randIntArray(100);
+            for (auto x: rd)tm.emplace_equal(x, x);
+            for (auto x: rd)sm.insert({x, x});
+            TTL_STL_COMPARE_2(
+                    {
+                        for (auto x: rde)tm.erase(x);
+                    }, {
+                        for (auto x: rde)sm.erase(x);
+                    }, "hashtable erase key"
+            );
+            hmp_same(tm, sm);
         }
 
         static void test4() { // erase == count
-            auto_timer timer("hashtable erase & count");
             ttl::hashtable<int, int> tm;
-            for (int i = 0; i < 10000; ++i) tm.emplace_equal(randInt(100), i);
-            for (int i = 0; i < 100; ++i) {
-                int rd = randInt(100);
-                size_t cnt = tm.count(rd);
-                assert(cnt == tm.erase(rd));
-            }
+            std::unordered_multimap<int, int> sm;
+            std::vector<int> rd = randIntArray(10000);
+            std::vector<int> rde = randIntArray(100);
+            std::vector<int> r1, r2;
+            for (auto x: rd)tm.emplace_equal(x, x);
+            for (auto x: rd)sm.insert({x, x});
+            TTL_STL_COMPARE_2(
+                    {
+                        for (auto x: rde)r1.push_back(tm.erase(x));
+                    }, {
+                        for (auto x: rde)r2.push_back(sm.erase(x));
+                    }, "hashtable erase & count"
+            );
+            hmp_same(tm, sm);
         }
 
         static void test5() {
-            auto_timer timer("hashtable string equal add");
             ttl::hashtable<std::string, std::string> tm;
-            for (int i = 0; i < 10000; ++i) tm.emplace_equal(randStr(26), randStr(26));
-            assert(tm.size() == 10000);
+            std::unordered_multimap<std::string, std::string> sm;
+            auto rd = randArray<std::string>(
+                    10000,
+                    []() -> std::string { return randStr(10); });
+            TTL_STL_COMPARE_2(
+                    {
+                        for (auto x: rd)tm.emplace_unique(x, x);
+                    }, {
+                        for (auto x: rd)if (!sm.count(x))sm.insert({x, x});
+                    }, "hashtable string unique add"
+            );
+            hmp_same(tm, sm);
         }
 
         static void test6() {
-            ttl::hashtable<int, int> tm;
-            std::unordered_multimap<int, int> sm;
-            std::vector<int> rd = randArray<int>(10000, []() -> int { return randInt(); });
+            ttl::hashtable<std::string, std::string> tm;
+            std::unordered_multimap<std::string, std::string> sm;
+            auto rd = randArray<std::string>(
+                    10000,
+                    []() -> std::string { return randStr(10); });
             TTL_STL_COMPARE_2(
                     {
-                        for (auto v: rd) tm.emplace_equal(v, v);
-                    },
-                    {
-                        for (auto v: rd) sm.emplace(v, v);
-                    }, "hashtable equal push"
+                        for (auto x: rd)tm.emplace_equal(x, x);
+                    }, {
+                        for (auto x: rd)sm.insert({x, x});
+                    }, "hashtable string equal add"
             );
-            assert(tm.size() == sm.size());
+            hmp_same(tm, sm);
         }
     };
 }
