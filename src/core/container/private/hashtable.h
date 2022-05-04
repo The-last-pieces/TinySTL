@@ -130,6 +130,7 @@ namespace ttl {
             }
         };
 
+    public:
         using iterator = hashtable_iterator;
         using const_iterator = const_hashtable_iterator;
 
@@ -481,12 +482,18 @@ namespace ttl {
             return cur;
         }
 
+        bool contain_by_key_value(const K &key, const V &val) const {
+            auto lr = find_range_by_key(key);
+            for (; lr.first != lr.second; ++lr.first)
+                if (lr.first->value.second == val) return true;
+            return false;
+        }
+
         std::pair<bucket_node *, bucket_node *> find_range_by_key(const K &key) const {
             bucket_node *first = find_by_key(key), *second = first ? first->next : nullptr;
             while (second && equal_fcn(second->value.first, key)) second = second->next;
             return {first, second};
         }
-
 
 #pragma endregion
     public: // bucket interface
@@ -526,6 +533,21 @@ namespace ttl {
         void reserve(size_type count) { rehash(std::ceil(static_cast<float>(count) / max_load_factor())); }
 
 #pragma endregion
+    public: // operator
+        friend bool operator==(const hashtable &lhs, const hashtable &rhs) {
+            if (&lhs == &rhs) return true;
+            if (lhs.size() != rhs.size()) return false;
+            for (auto &kv: lhs) {
+                if (!rhs.contain_by_key_value(kv.first, kv.second)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        friend bool operator!=(const hashtable &lhs, const hashtable &rhs) {
+            return !(rhs == lhs);
+        }
     };
 }
 
