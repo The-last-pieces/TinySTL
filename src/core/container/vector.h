@@ -12,7 +12,7 @@
 namespace ttl {
 
     // Todo 特化vector bool
-    template<typename T, typename Alloc = ttl::allocator<T>>
+    template<typename T> // , typename Alloc = ttl::allocator<T>
     class vector {
     private:
         using alloc_type = ttl::allocator<T>; //typename Alloc::template rebind<T>::other;
