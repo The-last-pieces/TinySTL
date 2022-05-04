@@ -9,11 +9,6 @@
 #include "./private/hashtable.h"
 
 namespace ttl {
-//    using K = int;
-//    using V = int;
-//    using HashFcn = std::hash<K>;
-//    using KeyEqualFcn = std::equal_to<>;
-
     template<
             typename K, typename V,
             typename HashFcn = std::hash<K>,
