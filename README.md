@@ -87,7 +87,7 @@
   有序可重复集合
 - [ ] multimap  
   有序可重复映射
-- [ ] hashtable  
+- [x] hashtable  
   哈希表,一系列O(1)容器的基础
 - [ ] unordered_set  
   无序集合
