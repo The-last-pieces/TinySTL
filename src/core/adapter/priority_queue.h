@@ -31,10 +31,14 @@ namespace ttl {
                 : priority_queue(compare, Container()) {}
 
         priority_queue(const Compare &compare, const Container &cont) // NOLINT(modernize-pass-by-value)
-                : comp(compare), arr(cont) {}
+                : comp(compare), arr(cont) {
+            ttl::make_heap(arr.begin(), arr.end(), comp);
+        }
 
         priority_queue(const Compare &compare, Container &&cont)
-                : comp(compare), arr(std::forward<Container>(cont)) {}
+                : comp(compare), arr(std::forward<Container>(cont)) {
+            ttl::make_heap(arr.begin(), arr.end(), comp);
+        }
 
         priority_queue(const priority_queue &other) = default;
 
