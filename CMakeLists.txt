@@ -27,4 +27,6 @@ add_executable(tinySTL
         src/core/container/private/hashtable.h
         src/tests/hashtable_test.h
         src/core/container/unordered_map.h
-        src/tests/unordered_map_test.h)
+        src/tests/unordered_map_test.h
+        src/core/adapter/priority_queue.h
+        src/tests/priority_queue_test.h)
