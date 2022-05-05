@@ -68,9 +68,9 @@
   栈
 - [ ] queue  
   队列
-- [ ] heap  
+- [x] heap  
   序列容器上的一系列操作函数
-- [ ] priority_queue  
+- [x] priority_queue  
   优先队列
 - [ ] forward_list  
   单向链表
