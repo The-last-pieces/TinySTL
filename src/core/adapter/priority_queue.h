@@ -9,10 +9,6 @@
 #include "../algorithm/algorithm.h"
 
 namespace ttl {
-//    using T = int;
-//    using Container = ttl::vector<T>;
-//    using Compare = std::less<>;
-
     template<
             typename T,
             typename Container = ttl::vector<T>,
