@@ -52,7 +52,140 @@ namespace ttl {
 
     /*
      * 堆操作
+     * 最大堆是拥有下列属性的元素范围 [f,l) :
+     * 设 N = l - f ,对于所有 0 < i < N , comp(f[parent_index(i)],f[i]) == false
+     * 且对任意0 < i < N , comp(f[0], f[i])为false
+     * Comp默认为std::less , 即大顶堆
      */
+    namespace {
+        using heap_index = size_t;
+
+        // i>0
+        heap_index parent_index(heap_index pos) {
+            return (pos - 1) >> 1;
+        }
+
+        heap_index left_index(heap_index pos) {
+            return (pos << 1) | 1;
+        }
+
+        heap_index right_index(heap_index pos) {
+            return (pos + 1) << 1;
+        }
+
+        // 上浮最后一个元素
+        template<typename RandomIt, typename Compare>
+        void swim_heap(RandomIt first, heap_index pos, Compare comp) {
+            heap_index parent = parent_index(pos);
+            while (pos && comp(first[parent], first[pos])) {
+                std::swap(first[parent], first[pos]);
+                pos = parent, parent = parent_index(pos);
+            }
+        }
+
+        // 从left,right,parent中选取一个最大的下标
+        template<typename RandomIt, typename Compare>
+        heap_index sink_index_selector(RandomIt first, heap_index parent, heap_index heap_size, Compare comp) {
+            heap_index ret = parent, l = left_index(parent), r = right_index(parent);
+            if (l < heap_size && comp(first[ret], first[l])) ret = l;
+            if (r < heap_size && comp(first[ret], first[r])) ret = r;
+            return ret;
+        }
+
+        // 下沉第一个元素
+        template<typename RandomIt, typename Compare>
+        void sink_heap(RandomIt first, heap_index parent, heap_index heap_size, Compare comp) {
+            heap_index idx;
+            while ((idx = sink_index_selector(first, parent, heap_size, comp)) != parent) {
+                std::swap(first[parent], first[idx]), parent = idx;
+            }
+        }
+    }
+
+    // 检验范围 [first, last) 并寻找始于 first 且为最大堆的最大范围
+    template<typename RandomIt, typename Compare>
+    RandomIt is_heap_until(RandomIt first, RandomIt last, Compare comp) {
+        if (first == last) return last;
+        RandomIt pre = first, cur = ++first;
+        bool add_pre = false;
+        while (cur != last) {
+            if (comp(*pre, *cur++))break;
+            if (add_pre) ++pre, add_pre = false;
+            else add_pre = true;
+        }
+        return cur;
+    }
+
+    template<typename RandomIt>
+    RandomIt is_heap_until(RandomIt first, RandomIt last) {
+        return ttl::is_heap_until(first, last, std::less<>());
+    }
+
+    // 检测是否为堆
+    template<typename RandomIt, typename Compare>
+    bool is_heap(RandomIt first, RandomIt last, Compare comp) {
+        return is_heap_until(first, last, comp) == last;
+    }
+
+    template<typename RandomIt>
+    bool is_heap(RandomIt first, RandomIt last) {
+        return ttl::is_heap(first, last, std::less<>());
+    }
+
+    // 将last-1位置处的元素插入到[first,last-1)的堆中
+    template<typename RandomIt, typename Compare>
+    void push_heap(RandomIt first, RandomIt last, Compare comp) {
+        if (last <= first + 1) return;
+        heap_index pos = last - first - 1;
+        swim_heap(first, pos, comp);
+    }
+
+    template<typename RandomIt>
+    void push_heap(RandomIt first, RandomIt last) {
+        return ttl::push_heap(first, last, std::less<>());
+    }
+
+    // 将first位置处的元素从[first,last)的堆中移除,放置到last-1处
+    template<typename RandomIt, typename Compare>
+    void pop_heap(RandomIt first, RandomIt last, Compare comp) {
+        if (last <= first + 1) return;
+        heap_index heap_size = last - first - 1;
+        std::swap(*first, *(first + heap_size));
+        sink_heap(first, 0, heap_size, comp);
+    }
+
+    template<typename RandomIt>
+    void pop_heap(RandomIt first, RandomIt last) {
+        return ttl::pop_heap(first, last, std::less<>());
+    }
+
+    // 将[first,last)的中的元素整理为一个堆
+    template<typename RandomIt, typename Compare>
+    void make_heap(RandomIt first, RandomIt last, Compare comp) {
+        if (last <= first + 1) return;
+        heap_index heap_size = last - first, parent = heap_size / 2; // 2*p+1<len
+        while (true) {
+            sink_heap(first, parent, heap_size, comp);
+            if (parent-- == 0) break;
+        }
+    }
+
+    template<typename RandomIt>
+    void make_heap(RandomIt first, RandomIt last) {
+        return ttl::make_heap(first, last, std::less<>());
+    }
+
+    // 将[first,last)的堆排序为升序序列
+    template<typename RandomIt, typename Compare>
+    void sort_heap(RandomIt first, RandomIt last, Compare comp) {
+        while (last > first + 1) ttl::pop_heap(first, last--, comp);
+    }
+
+    template<typename RandomIt>
+    void sort_heap(RandomIt first, RandomIt last) {
+        return ttl::sort_heap(first, last, std::less<>());
+    }
+
 
     /*
      * 最小/最大操作
