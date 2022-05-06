@@ -29,4 +29,6 @@ add_executable(tinySTL
         src/core/container/unordered_map.h
         src/tests/unordered_map_test.h
         src/core/adapter/priority_queue.h
-        src/tests/priority_queue_test.h)
+        src/tests/priority_queue_test.h
+        src/core/container/expand/bitset.h
+        src/tests/bitset_test.h)
