@@ -102,10 +102,10 @@
 
 - [ ] bloom  
   布隆过滤器
-- [ ] bitmap  
-  定长bitmap
-- [ ] vbitmap  
-  变长bitmap
+- [ ] bitset  
+  定长bitset
+- [ ] vbitset  
+  变长bitset
 - [ ] mono_stack  
   单调栈
 - [ ] mono_queue  
@@ -144,6 +144,7 @@
 - 最大/最小操作
 - 比较操作
 - 排列操作
+- 二进制位操作
 
 ## 仿函数
 
