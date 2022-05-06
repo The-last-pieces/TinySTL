@@ -239,6 +239,47 @@ namespace ttl {
     /*
      * 排列操作
      */
+
+
+    /*
+     * 位操作
+     */
+    namespace {
+        // Todo 注释
+        int popcount32(uint32_t x) noexcept {
+            x = (x & 0x55555555) + ((x >> 1) & 0x55555555);
+            x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+            x = (x & 0x0f0f0f0f) + ((x >> 4) & 0x0f0f0f0f);
+            x = (x & 0x00ff00ff) + ((x >> 8) & 0x00ff00ff);
+            x = (x & 0x0000ffff) + ((x >> 16) & 0x0000ffff);
+            return int(x);
+        }
+
+        // Todo
+        int popcount8(uint8_t x) noexcept {
+            return popcount32(x);
+        }
+
+        // Todo
+        int popcount16(uint16_t x) noexcept {
+            return popcount32(x);
+        }
+
+        // Todo
+        int popcount64(uint64_t x) noexcept {
+            return popcount32(x & 0xffffffff) + popcount32(x >> 32);
+        }
+    }
+
+    template<typename T>
+    int popcount(T x) noexcept {
+        const int digit = std::numeric_limits<T>::digits;
+        static_assert(digit <= 64);
+        if constexpr(digit <= 8) return popcount8(digit);
+        else if constexpr(digit <= 16) return popcount16(digit);
+        else if constexpr(digit <= 32) return popcount32(digit);
+        else return popcount64(digit);
+    }
 }
 
 #endif //TINYSTL_ALGORITHM_H
