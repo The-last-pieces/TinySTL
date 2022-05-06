@@ -100,34 +100,41 @@
 
 ### 扩展数据结构
 
-- [ ] bloom  
-  布隆过滤器
 - [x] bitset  
   定长bitset
-- [ ] vbitset  
-  变长bitset
-- [ ] mono_stack  
-  单调栈
-- [ ] mono_queue  
-  单调队列
+- [ ] circular_buffer  
+  环形缓冲区
+- [ ] skip_list  
+  跳表
+- [ ] trie  
+  字典树
 - [ ] binary_indexed_tree  
   树状数组
 - [ ] segment_tree    
   线段树
-- [ ] skip_list  
-  跳表
-- [ ] linked_hashmap  
-  list+map实现,用例如LRU容器
-- [ ] trie  
-  字典树
-- [ ] AVL-tree  
+- [ ] AVL_tree  
   平衡二叉树
-- [ ] B-tree  
-  B树
+- [ ] graph  
+  图的一系列抽象
 - [ ] matrix  
   矩阵
-- [ ] graphic  
-  抽象图
+- [ ] B-tree  
+  B树
+
+#### 容易实现的扩展
+
+- [ ] bloom  
+  布隆过滤器
+- [ ] mono_stack  
+  单调栈
+- [ ] mono_queue  
+  单调队列
+- [ ] union-set  
+  并查集
+- [ ] linked_hashmap  
+  list+map实现,用例如LRU容器
+- [ ] vbitset  
+  变长bitset(包装vector_bool)
 
 ## 算法
 
