@@ -102,7 +102,7 @@
 
 - [ ] bloom  
   布隆过滤器
-- [ ] bitset  
+- [x] bitset  
   定长bitset
 - [ ] vbitset  
   变长bitset
