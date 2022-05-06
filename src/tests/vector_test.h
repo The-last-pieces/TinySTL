@@ -14,6 +14,7 @@ namespace ttl::ttl_test {
     class vector_test {
     public:
         static void runAll() {
+            test0();
             test1();
             test2();
             test3();
@@ -22,6 +23,16 @@ namespace ttl::ttl_test {
         }
 
     private:
+        static void test0() {
+            auto arr = randIntArray(1000000);
+            ttl::vector<int> ta;
+            std::vector<int> sa;
+            TTL_STL_COMPARE(ta, sa, {
+                for (auto &temp: arr) v.push_back(temp);
+            }, "vector pod push");
+            same(sa, ta);
+        }
+
         static void test1() {
             auto arr = randArray<std::string>(
                     10000,
@@ -30,7 +41,7 @@ namespace ttl::ttl_test {
             std::vector<std::string> sa;
             TTL_STL_COMPARE(ta, sa, {
                 for (auto &temp: arr) v.push_back(temp);
-            }, "vector push");
+            }, "vector class push");
             same(sa, ta);
         }
 
