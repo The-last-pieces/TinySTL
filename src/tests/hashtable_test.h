@@ -36,7 +36,7 @@ namespace ttl::ttl_test {
         static void test1() { // unique add
             ttl::hashtable<int, int> tm;
             std::unordered_multimap<int, int> sm;
-            std::vector<int> rd = randIntArray(10000);
+            std::vector<int> rd = randIntArray(100000);
             TTL_STL_COMPARE_2(
                     {
                         for (auto x: rd)tm.emplace_unique(x, x);
@@ -50,7 +50,7 @@ namespace ttl::ttl_test {
         static void test2() { // equal add
             ttl::hashtable<int, int> tm;
             std::unordered_multimap<int, int> sm;
-            std::vector<int> rd = randIntArray(10000);
+            std::vector<int> rd = randIntArray(100000);
             TTL_STL_COMPARE_2(
                     {
                         for (auto x: rd)tm.emplace_equal(x, x);
@@ -64,8 +64,8 @@ namespace ttl::ttl_test {
         static void test3() { // erase
             ttl::hashtable<int, int> tm;
             std::unordered_multimap<int, int> sm;
-            std::vector<int> rd = randIntArray(10000);
-            std::vector<int> rde = randIntArray(100);
+            std::vector<int> rd = randIntArray(100000);
+            std::vector<int> rde = randIntArray(50000);
             for (auto x: rd)tm.emplace_equal(x, x);
             for (auto x: rd)sm.insert({x, x});
             TTL_STL_COMPARE_2(
@@ -81,8 +81,8 @@ namespace ttl::ttl_test {
         static void test4() { // erase == count
             ttl::hashtable<int, int> tm;
             std::unordered_multimap<int, int> sm;
-            std::vector<int> rd = randIntArray(10000);
-            std::vector<int> rde = randIntArray(100);
+            std::vector<int> rd = randIntArray(100000);
+            std::vector<int> rde = randIntArray(50000);
             std::vector<int> r1, r2;
             for (auto x: rd)tm.emplace_equal(x, x);
             for (auto x: rd)sm.insert({x, x});
