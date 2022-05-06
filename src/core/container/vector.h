@@ -454,7 +454,7 @@ namespace ttl {
 
         // 增长策略
         static size_type next_size(size_type cur) {
-            return (size_type) (1.5 * double(cur) + 4);
+            return (size_type) ((cur / 2)* 3 + 4);
         }
 
 #pragma endregion
