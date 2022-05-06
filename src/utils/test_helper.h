@@ -16,21 +16,21 @@ namespace ttl::ttl_test {
     do{                                             \
         free_timer timer;                           \
         time_type s_cost,t_cost;                    \
-        printf("%-30s : stl ~", (name));            \
+        printf("%-30s : stl vs", (name));           \
         {                                           \
         auto &v = sv;                               \
         timer.start();                              \
         {code;}                                     \
         s_cost = timer.get_ns();                    \
         }                                           \
-        printf(" ttl ~");                           \
+        printf(" ttl : ");                          \
         {                                           \
         auto &v = tv;                               \
         timer.start();                              \
         {code;}                                     \
         t_cost = timer.get_ns();                    \
         }                                           \
-        report(t_cost, s_cost);                     \
+        report(s_cost, t_cost);                     \
     }while(false)                                   \
 
 
@@ -38,29 +38,31 @@ namespace ttl::ttl_test {
     do{                                             \
         free_timer timer;                           \
         time_type s_cost,t_cost;                    \
-        printf("%-30s : stl ~", (name));            \
+        printf("%-30s : stl vs", (name));           \
         timer.start();                              \
         {s_code;}                                   \
         s_cost = timer.get_ns();                    \
-        printf(" ttl ~");                           \
+        printf(" ttl : ");                          \
         timer.start();                              \
         {t_code;}                                   \
         t_cost = timer.get_ns();                    \
-        report(t_cost, s_cost);                     \
+        report(s_cost, t_cost);                     \
     }while(false)                                   \
 
 
-    void report(time_type t_cost, time_type s_cost) {
-        auto str = t_cost == s_cost ? "same" : (t_cost > s_cost ? "win" : "lose");
-        if (t_cost < 10000 && s_cost < 10000) {
-            printf(" , %.2lf/%.2lf \t\tns , %s\n", double(t_cost), double(s_cost), str);
+    void report(time_type s_cost, time_type t_cost) {
+        auto str = s_cost == t_cost ? "same" : (s_cost > t_cost ? "win" : "lose");
+        if (s_cost < 10000 && t_cost < 10000) {
+            printf(" %.2lf/%.2lf \t\tns , %s\n", double(s_cost), double(t_cost), str);
         } else {
-            printf(" , %.2lf/%.2lf \t\tms , %s\n", double(t_cost) / 1e6, double(s_cost) / 1e6, str);
+            printf(" %.2lf/%.2lf \t\tms , %s\n", double(s_cost) / 1e6, double(t_cost) / 1e6, str);
         }
     }
 
     int randInt(int l, int r) {
-        static auto maker = std::mt19937(clock());
+        static auto seed = time(nullptr);
+        static auto maker =
+                (std::cout << "seed : " << seed << std::endl, std::mt19937(seed)); // NOLINT(cert-msc51-cpp)
         return int(maker() % (r - l)) + l;
     }
 
