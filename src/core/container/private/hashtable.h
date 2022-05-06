@@ -266,7 +266,7 @@ namespace ttl {
 
         // 未超载
         bool un_overload(size_type ele_size, size_type bkt_size) const {
-            return static_cast<float>(ele_size) > static_cast<float>(bkt_size) * factor;
+            return static_cast<float>(ele_size) < static_cast<float>(bkt_size) * factor;
         }
 
         // 获取key在size个bucket中应该位于的下标
@@ -297,7 +297,6 @@ namespace ttl {
             size_type bucket_size = buckets.size();
             if (un_overload(hint_element_size, bucket_size)) return;
             size_type new_bucket_size = next_primer(hint_element_size);
-            if (un_overload(new_bucket_size, bucket_size)) return;
             bucket_container tmp(new_bucket_size, nullptr);
             bucket_node *nxt;
             for (auto ptr: buckets) {
