@@ -1,4 +1,4 @@
-//
+﻿//
 // Created by IMEI on 2022/5/5.
 //
 
@@ -76,7 +76,7 @@ namespace ttl {
 
         template<class... Args>
         void emplace(Args &&... args) {
-            arr.template emplace_back(std::forward<value_type>(args)...), after_push();
+            arr.emplace_back(std::forward<value_type>(args)...), after_push();
         }
 
         void pop() {

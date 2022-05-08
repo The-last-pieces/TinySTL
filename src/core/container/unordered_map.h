@@ -1,4 +1,4 @@
-//
+﻿//
 // Created by IMEI on 2022/5/4.
 //
 
@@ -140,12 +140,12 @@ namespace ttl {
         }
 
         V &operator[](const K &key) {
-            auto ret = table.template emplace_unique(key, V{});
+            auto ret = table.emplace_unique(key, V{});
             return ret.first->second;
         }
 
         V &operator[](K &&key) {
-            auto ret = table.template emplace_unique(std::forward<K>(key), V{});
+            auto ret = table.emplace_unique(std::forward<K>(key), V{});
             return ret.first->second;
         }
 
