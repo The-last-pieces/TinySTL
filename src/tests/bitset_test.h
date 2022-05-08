@@ -85,7 +85,7 @@ namespace ttl::ttl_test {
             TTL_STL_COMPARE(tb, sb, {
                 for (auto x: rd) {
                     v.set(x % N, x % 2);
-                    if (x % 300 == 0) v.count();
+                    if (x % 300 == 0) (void)v.count();
                 }
             }, "bitset count");
             bs_same(tb, sb);
