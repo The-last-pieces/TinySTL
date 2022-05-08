@@ -1,4 +1,4 @@
-//
+﻿//
 // Created by IMEI on 2022/4/26.
 //
 
@@ -139,10 +139,8 @@ namespace ttl {
         normal_iterator(const normal_iterator &it) noexcept: current(it.current) {}
 
         template<typename Iter>
-        explicit normal_iterator(
-                const normal_iterator<Iter, typename std::enable_if<
-                        std::is_same_v<Iter, typename Container::pointer>, Container
-                >::type> it) noexcept: current(it.base()) {}
+        normal_iterator(const normal_iterator<Iter, Container> it) noexcept: // NOLINT(google-explicit-constructor)
+                current(const_cast<pointer>(it.base())) {}
 
         normal_iterator(normal_iterator &&) noexcept = default;
 
@@ -157,8 +155,7 @@ namespace ttl {
 
         // forward
         normal_iterator &operator++() noexcept {
-            ++current;
-            return *this;
+            return ++current, *this;
         }
 
         normal_iterator operator++(int) noexcept {
@@ -167,8 +164,7 @@ namespace ttl {
 
         // bi direct
         normal_iterator &operator--() noexcept {
-            --current;
-            return *this;
+            return --current, *this;
         }
 
         normal_iterator operator--(int) noexcept {
@@ -177,12 +173,11 @@ namespace ttl {
 
         // random
         reference operator[](difference_type n) const noexcept {
-            return current[n];
+            return *(current + n);
         }
 
         normal_iterator &operator+=(difference_type n) noexcept {
-            current += n;
-            return *this;
+            return current += n, *this;
         }
 
         normal_iterator operator+(difference_type n) const noexcept {
@@ -190,8 +185,7 @@ namespace ttl {
         }
 
         normal_iterator &operator-=(difference_type n) noexcept {
-            current -= n;
-            return *this;
+            return current -= n, *this;
         }
 
         normal_iterator operator-(difference_type n) const noexcept {
@@ -234,7 +228,7 @@ namespace ttl {
     };
 
     /*
-     * 将迭代器保证为逆序迭代器
+     * 将迭代器适配为逆序迭代器
      */
     template<typename Iterator>
     class reverse_iterator : public ttl::iterator<
@@ -273,23 +267,18 @@ namespace ttl {
         template<typename T>
         static pointer cast_to_pointer(T t) { return t.operator->(); }
 
-
     public: // ops
         reference operator*() const noexcept {
-            iterator_type temp = current;
-            return *--temp;
+            return *--iterator_type(current);
         }
 
         pointer operator->() const noexcept {
-            iterator_type temp = current;
-            --temp;
-            return cast_to_pointer(temp);
+            return cast_to_pointer(--iterator_type(current));
         }
 
         // forward
         reverse_iterator &operator++() noexcept {
-            --current;
-            return *this;
+            return --current, *this;
         }
 
         reverse_iterator operator++(int) noexcept {
@@ -298,8 +287,7 @@ namespace ttl {
 
         // bi direct
         reverse_iterator &operator--() noexcept {
-            ++current;
-            return *this;
+            return ++current, *this;
         }
 
         reverse_iterator operator--(int) noexcept {
@@ -312,8 +300,7 @@ namespace ttl {
         }
 
         reverse_iterator &operator+=(difference_type n) noexcept {
-            current -= n;
-            return *this;
+            return current -= n, *this;
         }
 
         reverse_iterator operator+(difference_type n) const noexcept {
@@ -321,8 +308,7 @@ namespace ttl {
         }
 
         reverse_iterator &operator-=(difference_type n) noexcept {
-            current += n;
-            return *this;
+            return current += n, *this;
         }
 
         reverse_iterator operator-(difference_type n) const noexcept {
