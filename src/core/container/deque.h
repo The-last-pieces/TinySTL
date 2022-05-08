@@ -35,11 +35,10 @@ namespace ttl {
         static constexpr size_type init_map_size = 8; // 最少map节点个数
 
         template<typename CVT>
-        class deque_iterator {
+        class deque_iterator : public ttl::iterator<ttl::random_access_iterator_tag, CVT> {
             friend class deque;
 
         public:
-            using iterator_category = ttl::random_access_iterator_tag;
             using value_type = CVT;
             using pointer = CVT *;
             using reference = CVT &;
@@ -50,8 +49,6 @@ namespace ttl {
             pointer first{}; // cur所在缓冲区的头指针
             pointer last{}; // cur所在缓冲区的尾指针
             map_pointer node{}; // cur所在缓冲区
-        private:
-            // deque_iterator(map_pointer buf, pointer where):cur(where),node(buf),first() {}
         public: // constructor
             deque_iterator() = default;
 
@@ -64,16 +61,13 @@ namespace ttl {
                     last(const_cast<pointer>(oth.last)),
                     node(const_cast<map_pointer>(oth.node)) {}
 
-            ~deque_iterator() = default;
-
         public: // ops
             reference operator*() const { return *cur; }
 
             pointer operator->() const { return alloc_type::address(*cur); }
 
             difference_type operator-(const deque_iterator &x) const {
-                return difference_type(buffer_size) * (node - x.node - 1) +
-                       (cur - first) + (x.last - x.cur);
+                return difference_type(buffer_size) * (node - x.node - 1) + (cur - first) + (x.last - x.cur);
             }
 
             deque_iterator &operator++() {
@@ -83,7 +77,8 @@ namespace ttl {
             }
 
             deque_iterator operator++(int) {
-                return ++deque_iterator(*this);
+                deque_iterator tmp = *this;
+                return ++*this, tmp;
             }
 
             deque_iterator &operator--() {
@@ -93,7 +88,8 @@ namespace ttl {
             }
 
             deque_iterator operator--(int) {
-                return --deque_iterator(*this);
+                deque_iterator tmp = *this;
+                return --*this, tmp;
             }
 
             deque_iterator &operator+=(difference_type n) {
