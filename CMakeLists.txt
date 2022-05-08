@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17)
+﻿cmake_minimum_required(VERSION 3.17)
 project(tinySTL)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -31,4 +31,6 @@ add_executable(tinySTL
         src/core/adapter/priority_queue.h
         src/tests/priority_queue_test.h
         src/core/container/expand/bitset.h
-        src/tests/bitset_test.h)
+        src/tests/bitset_test.h
+        src/core/container/deque.h
+        src/tests/deque_test.h)
