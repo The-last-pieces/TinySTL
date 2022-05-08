@@ -364,7 +364,6 @@ namespace ttl {
         iterator m_erase(iterator first, iterator last) {
             if (first >= last) return last;
             if (first == end()) return end();
-            iterator next = last;
             // [last, end()) => [first, first + end()-last)
             ttl::move(last, end(), first);
             ttl::destroy(first, end());
