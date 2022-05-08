@@ -41,22 +41,29 @@ namespace ttl {
         using node_alloc_type = ttl::allocator<bucket_node>;
 
         // 迭代器
-        class hashtable_iterator : public ttl::iterator<ttl::forward_iterator_tag, value_type> {
+        template<typename CVT>
+        class hashtable_iterator : public ttl::iterator<ttl::forward_iterator_tag, CVT> {
             friend class hashtable;
 
             bucket_node *cur; // 迭代器当前位置
             hashtable *table; // 所属的容器
+        public:
+            using value_type = CVT;
+            using pointer = CVT *;
+            using reference = CVT &;
+            using size_type = size_t;
+            using difference_type = ptrdiff_t;
+        private:
+            hashtable_iterator(bucket_node *node, hashtable *belong) : cur(node), table(belong) {}
+
         public: // constructor
             hashtable_iterator() = default;
 
-            hashtable_iterator(bucket_node *node, hashtable *belong) :
-                    cur(node), table(belong) {}
+            hashtable_iterator(const hashtable_iterator &) = default;
 
-            hashtable_iterator(const hashtable_iterator &oth) = default;
-
-            hashtable_iterator(hashtable_iterator &&oth) noexcept = default;
-
-            ~hashtable_iterator() = default;
+            template<typename OV>
+            hashtable_iterator(const hashtable_iterator<OV> oth) noexcept: // NOLINT(google-explicit-constructor)
+                    cur(oth.cur), table(oth.table) {}
 
         public: // ops
             reference operator*() const { return cur->value; }
@@ -70,8 +77,7 @@ namespace ttl {
 
             hashtable_iterator operator++(int) {
                 hashtable_iterator tmp = *this;
-                ++*this;
-                return tmp;
+                return ++*this, tmp;
             }
 
         public:
@@ -84,55 +90,9 @@ namespace ttl {
             }
         };
 
-        class const_hashtable_iterator : public ttl::iterator<ttl::forward_iterator_tag, value_type> {
-            friend class hashtable;
-
-            bucket_node *cur; // 迭代器当前位置
-            hashtable *table; // 所属的容器
-        public: // constructor
-            const_hashtable_iterator() = default;
-
-            const_hashtable_iterator(const bucket_node *node, const hashtable *belong) :
-                    cur(const_cast<bucket_node *>(node)), table(const_cast<hashtable *>(belong)) {}
-
-            const_hashtable_iterator(const hashtable_iterator &oth) : // NOLINT(google-explicit-constructor)
-                    const_hashtable_iterator(oth.cur, oth.table) {}
-
-            const_hashtable_iterator(const const_hashtable_iterator &oth) = default;
-
-            const_hashtable_iterator(const_hashtable_iterator &&oth) noexcept = default;
-
-            ~const_hashtable_iterator() = default;
-
-        public: // ops
-            const_reference operator*() const { return cur->value; }
-
-            const_pointer operator->() const { return alloc_type::address(cur->value); }
-
-            const_hashtable_iterator &operator++() {
-                cur = table->next_node(cur);
-                return *this;
-            }
-
-            const_hashtable_iterator operator++(int) {
-                const_hashtable_iterator tmp = *this;
-                ++*this;
-                return tmp;
-            }
-
-        public:
-            friend bool operator==(const const_hashtable_iterator &lhs, const const_hashtable_iterator &rhs) {
-                return lhs.cur == rhs.cur;
-            }
-
-            friend bool operator!=(const const_hashtable_iterator &lhs, const const_hashtable_iterator &rhs) {
-                return !(rhs == lhs);
-            }
-        };
-
     public:
-        using iterator = hashtable_iterator;
-        using const_iterator = const_hashtable_iterator;
+        using iterator = hashtable_iterator<value_type>;
+        using const_iterator = hashtable_iterator<const value_type>;
 
 #pragma endregion
     private: // fields
