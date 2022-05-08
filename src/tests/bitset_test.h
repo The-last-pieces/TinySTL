@@ -1,4 +1,4 @@
-//
+﻿//
 // Created by IMEI on 2022/5/6.
 //
 
@@ -58,7 +58,7 @@ namespace ttl::ttl_test {
             for (auto x: rd) tb.set(x % N, x % 2);
             for (auto x: rd) sb.set(x % N, x % 2);
             TTL_STL_COMPARE(tb, sb, {
-                for (auto x: rd) v.test(x % N);
+                for (auto x: rd) (void)v.test(x % N);
             }, "bitset read");
             bs_same(tb, sb);
         }
