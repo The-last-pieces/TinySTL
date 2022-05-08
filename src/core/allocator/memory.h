@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef TINYSTL_MEMORY_H
 #define TINYSTL_MEMORY_H
 
@@ -95,152 +95,96 @@ namespace ttl {
     NoThrowForwardIt uninitialized_copy(InputIt first, InputIt last, NoThrowForwardIt result) {
         using T = typename std::iterator_traits<InputIt>::value_type;
         NoThrowForwardIt current = result;
-        try {
-            for (; first != last; ++first, ++current) {
-                ::new(const_cast<void *>
-                      (static_cast<const volatile void *>
-                        (std::addressof(*current)))) T(*first);
-            }
-            return current;
-        } catch (...) {
-            for (; result != current; ++result) {
-                result->~T();
-            }
-            throw;
+        for (; first != last; ++first, ++current) {
+            ::new(const_cast<void *>
+                  (static_cast<const volatile void *>
+                    (std::addressof(*current)))) T(*first);
         }
+        return current;
     }
 
     template<typename InputIt, typename NoThrowForwardIt>
     NoThrowForwardIt uninitialized_copy_n(InputIt first, size_t n, NoThrowForwardIt result) {
         using T = typename std::iterator_traits<InputIt>::value_type;
         NoThrowForwardIt current = result;
-        try {
-            for (; n > 0; ++first, ++current, --n) {
-                ::new(const_cast<void *>
-                      (static_cast<const volatile void *>
-                        (std::addressof(*current)))) T(*first);
-            }
-            return current;
-        } catch (...) {
-            for (; result != current; ++result) {
-                result->~T();
-            }
-            throw;
+        for (; n > 0; ++first, ++current, --n) {
+            ::new(const_cast<void *>
+                  (static_cast<const volatile void *>
+                    (std::addressof(*current)))) T(*first);
         }
+        return current;
     }
 
     template<typename InputIt, typename NoThrowForwardIt>
     NoThrowForwardIt uninitialized_move(InputIt first, InputIt last, NoThrowForwardIt result) {
         using T = typename std::iterator_traits<InputIt>::value_type;
         NoThrowForwardIt current = result;
-        try {
-            for (; first != last; ++first, ++current) {
-                ::new(const_cast<void *>
-                      (static_cast<const volatile void *>
-                        (std::addressof(*current)))) T(std::move(*first));
-            }
-            return current;
-        } catch (...) {
-            for (; result != current; ++result) {
-                result->~T();
-            }
-            throw;
+        for (; first != last; ++first, ++current) {
+            ::new(const_cast<void *>
+                  (static_cast<const volatile void *>
+                    (std::addressof(*current)))) T(std::move(*first));
         }
+        return current;
     }
 
     template<typename InputIt, typename NoThrowForwardIt>
     NoThrowForwardIt uninitialized_move_n(InputIt first, size_t n, NoThrowForwardIt result) {
         using T = typename std::iterator_traits<InputIt>::value_type;
         NoThrowForwardIt current = result;
-        try {
-            for (; n > 0; ++first, ++current, --n) {
-                ::new(const_cast<void *>
-                      (static_cast<const volatile void *>
-                        (std::addressof(*current)))) T(std::move(*first));
-            }
-            return current;
-        } catch (...) {
-            for (; result != current; ++result) {
-                result->~T();
-            }
-            throw;
+        for (; n > 0; ++first, ++current, --n) {
+            ::new(const_cast<void *>
+                  (static_cast<const volatile void *>
+                    (std::addressof(*current)))) T(std::move(*first));
         }
+        return current;
     }
 
     template<typename ForwardIt, typename T>
     ForwardIt uninitialized_fill(ForwardIt first, ForwardIt last, const T &x) {
         using V = typename std::iterator_traits<ForwardIt>::value_type;
         ForwardIt current = first;
-        try {
-            for (; current != last; ++current) {
-                ::new(const_cast<void *>
-                      (static_cast<const volatile void *>
-                        (std::addressof(*current)))) V(x);
-            }
-            return current;
-        } catch (...) {
-            for (; first != current; ++first) {
-                first->~V();
-            }
-            throw;
+        for (; current != last; ++current) {
+            ::new(const_cast<void *>
+                  (static_cast<const volatile void *>
+                    (std::addressof(*current)))) V(x);
         }
+        return current;
     }
 
     template<typename ForwardIt, typename T>
     ForwardIt uninitialized_fill_n(ForwardIt first, size_t n, const T &x) {
         using V = typename std::iterator_traits<ForwardIt>::value_type;
         ForwardIt current = first;
-        try {
-            for (; n > 0; ++current, --n) {
-                ::new(const_cast<void *>
-                      (static_cast<const volatile void *>
-                        (std::addressof(*current)))) V(x);
-            }
-            return current;
-        } catch (...) {
-            for (; first != current; ++first) {
-                first->~V();
-            }
-            throw;
+        for (; n > 0; ++current, --n) {
+            ::new(const_cast<void *>
+                  (static_cast<const volatile void *>
+                    (std::addressof(*current)))) V(x);
         }
+        return current;
     }
 
     template<typename ForwardIt>
     ForwardIt uninitialized_default_construct(ForwardIt first, ForwardIt last) {
         using V = typename std::iterator_traits<ForwardIt>::value_type;
         ForwardIt current = first;
-        try {
-            for (; current != last; ++current) {
-                ::new(const_cast<void *>
-                      (static_cast<const volatile void *>
-                        (std::addressof(*current)))) V();
-            }
-            return current;
-        } catch (...) {
-            for (; first != current; ++first) {
-                first->~V();
-            }
-            throw;
+        for (; current != last; ++current) {
+            ::new(const_cast<void *>
+                  (static_cast<const volatile void *>
+                    (std::addressof(*current)))) V();
         }
+        return current;
     }
 
     template<typename ForwardIt>
     ForwardIt uninitialized_default_construct_n(ForwardIt first, size_t n) {
         using V = typename std::iterator_traits<ForwardIt>::value_type;
         ForwardIt current = first;
-        try {
-            for (; n > 0; ++current, --n) {
-                ::new(const_cast<void *>
-                      (static_cast<const volatile void *>
-                        (std::addressof(*current)))) V();
-            }
-            return current;
-        } catch (...) {
-            for (; first != current; ++first) {
-                first->~V();
-            }
-            throw;
+        for (; n > 0; ++current, --n) {
+            ::new(const_cast<void *>
+                  (static_cast<const volatile void *>
+                    (std::addressof(*current)))) V();
         }
+        return current;
     }
 
     template<typename T>
