@@ -365,7 +365,7 @@ namespace ttl {
             if (first >= last) return last;
             if (first == end()) return end();
             // [last, end()) => [first, first + end()-last)
-            ttl::move(last, end(), first);
+            first = ttl::move(last, end(), first);
             ttl::destroy(first, end());
             finish = first.base();
             return first;
@@ -384,7 +384,7 @@ namespace ttl {
             // 从后往前移动空出n个位置, 并析构原来的元素
             ttl::move_backward(tail, finish, finish + n);
             // 析构剩余元素
-            ttl::destroy(tail, ttl::min(tail + n, finish));
+            ttl::destroy(tail, tail + n);
             finish += n;
         }
 
@@ -442,9 +442,10 @@ namespace ttl {
             size_type old_cap = capacity();
             if (new_cap != old_cap) {
                 auto new_start = alloc_type::allocate(new_cap);
-                finish = ttl::uninitialized_move(start, finish, new_start);
+                auto ne_finish = ttl::uninitialized_move(start, finish, new_start);
+                ttl::destroy(start, finish); // Todo 优化
                 alloc_type::deallocate(start, old_cap);
-                start = new_start;
+                start = new_start, finish = ne_finish;
                 end_of_storage = start + new_cap;
             }
         }
