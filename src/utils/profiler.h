@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef TINYSTL_PROFILER_H
 #define TINYSTL_PROFILER_H
 
