@@ -1,4 +1,4 @@
-//
+﻿//
 // Created by IMEI on 2022/4/27.
 //
 
@@ -28,9 +28,9 @@ namespace ttl {
         using const_reference = const T &;
         using size_type = size_t;
         using difference_type = ptrdiff_t;
-    public: // iter Todo
+    public: // iter
         using iterator = ttl::normal_iterator<pointer, vector>;
-        using const_iterator = iterator;
+        using const_iterator = ttl::normal_iterator<const_pointer, vector>;
         using reverse_iterator = ttl::reverse_iterator<iterator>;
         using const_reverse_iterator = ttl::reverse_iterator<const_iterator>;
     public: // constructor
@@ -366,7 +366,7 @@ namespace ttl {
             if (first == end()) return end();
             iterator next = last;
             // [last, end()) => [first, first + end()-last)
-            for (; next < end(); ++next, ++first) *first = std::move(*next);
+            ttl::move(last, end(), first);
             ttl::destroy(first, end());
             finish = first.base();
             return first;
@@ -383,9 +383,7 @@ namespace ttl {
             pointer tail = start + pos;
             ttl::uninitialized_default_construct_n(finish, n);
             // 从后往前移动空出n个位置, 并析构原来的元素
-            for (pointer l = finish - 1, r = l + n; l >= tail; --l, --r) {
-                *r = std::move(*l);
-            }
+            ttl::move_backward(tail, finish, finish + n);
             // 析构剩余元素
             ttl::destroy(tail, ttl::min(tail + n, finish));
             finish += n;
@@ -454,7 +452,7 @@ namespace ttl {
 
         // 增长策略
         static size_type next_size(size_type cur) {
-            return (size_type) ((cur / 2)* 3 + 4);
+            return (size_type) ((cur / 2) * 3 + 4);
         }
 
 #pragma endregion
