@@ -1,4 +1,4 @@
-//
+﻿//
 // Created by IMEI on 2022/4/27.
 //
 
@@ -16,20 +16,51 @@ namespace ttl {
      */
     template<typename ForwardIt, typename OutputIt>
     OutputIt copy(ForwardIt first, ForwardIt last, OutputIt result) {
-        while (first != last) {
-            *result++ = *first++;
-        }
+        while (first != last) *result++ = *first++;
         return result;
     }
 
     template<typename ForwardIt, typename OutputIt>
     OutputIt copy_n(ForwardIt first, size_t n, OutputIt result) {
-        while (n--) {
-            *result++ = *first++;
-        }
+        while (n--) *result++ = *first++;
         return result;
     }
 
+    template<class BidirIt1, class BidirIt2>
+    BidirIt2 copy_backward(BidirIt1 first, BidirIt1 last, BidirIt2 result_back) {
+        while (first != last) *(--result_back) = *(--last);
+        return result_back;
+    }
+
+    template<class BidirIt1, class BidirIt2>
+    BidirIt2 copy_n_backward(size_t n, BidirIt1 last, BidirIt2 result_back) {
+        while (n--) *(--result_back) = *(--last);
+        return result_back;
+    }
+
+    template<typename ForwardIt, typename OutputIt>
+    OutputIt move(ForwardIt first, ForwardIt last, OutputIt result) {
+        while (first != last) *result++ = std::move(*first++);
+        return result;
+    }
+
+    template<typename ForwardIt, typename OutputIt>
+    OutputIt move_n(ForwardIt first, size_t n, OutputIt result) {
+        while (n--) *result++ = std::move(*first++);
+        return result;
+    }
+
+    template<class BidirIt1, class BidirIt2>
+    BidirIt2 move_backward(BidirIt1 first, BidirIt1 last, BidirIt2 result_back) {
+        while (first != last) *(--result_back) = std::move(*(--last));
+        return result_back;
+    }
+
+    template<class BidirIt1, class BidirIt2>
+    BidirIt2 move_n_backward(BidirIt1 last, size_t n, BidirIt2 result_back) {
+        while (n--) *(--result_back) = std::move(*(--last));
+        return result_back;
+    }
     /*
      * 划分操作
      */
@@ -208,7 +239,7 @@ namespace ttl {
     template<class InputIt1, class InputIt2>
     bool equal(InputIt1 first1, InputIt1 last1,
                InputIt2 first2, InputIt2 last2) {
-        for (; first1 != last1, first2 != last2; ++first1, ++first2) {
+        for (; first1 != last1 && first2 != last2; ++first1, ++first2) {
             if (!(*first1 == *first2)) {
                 return false;
             }
