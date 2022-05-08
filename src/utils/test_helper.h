@@ -1,4 +1,4 @@
-//
+﻿//
 // Created by IMEI on 2022/4/29.
 //
 
@@ -52,15 +52,16 @@ namespace ttl::ttl_test {
 
     void report(time_type s_cost, time_type t_cost) {
         auto str = s_cost == t_cost ? "same" : (s_cost > t_cost ? "win" : "lose");
+        auto rate = double(t_cost) / double(s_cost) * 100;
         if (s_cost < 10000 && t_cost < 10000) {
-            printf(" %.2lf/%.2lf \t\tns , %s\n", double(s_cost), double(t_cost), str);
+            printf(" %.2lf/%.2lf \tns , %-6.2lf%% %s\n", double(s_cost), double(t_cost), rate, str);
         } else {
-            printf(" %.2lf/%.2lf \t\tms , %s\n", double(s_cost) / 1e6, double(t_cost) / 1e6, str);
+            printf(" %.2lf/%.2lf \tms , %-6.2lf%% %s\n", double(s_cost) / 1e6, double(t_cost) / 1e6, rate, str);
         }
     }
 
     int randInt(int l, int r) {
-        static auto seed = time(nullptr);
+        static auto seed = 0;//time(nullptr);
         static auto maker =
                 (std::cout << "seed : " << seed << std::endl, std::mt19937(seed)); // NOLINT(cert-msc51-cpp)
         return int(maker() % (r - l)) + l;
@@ -85,7 +86,7 @@ namespace ttl::ttl_test {
     std::vector<T> randArray(int len, Callable call) {
         std::vector<T> ret;
         ret.reserve(len);
-        while (len--) ret.template emplace_back(call());
+        while (len--) ret.emplace_back(call());
         return ret;
     }
 
