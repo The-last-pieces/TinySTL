@@ -1,4 +1,4 @@
-//
+﻿//
 // Created by IMEI on 2022/4/30.
 //
 
@@ -36,55 +36,55 @@ namespace ttl {
         };
 
         // 迭代器
-        class list_iterator : public ttl::iterator<ttl::bidirectional_iterator_tag, T> {
+        template<typename CVT>
+        class list_iterator : public ttl::iterator<ttl::bidirectional_iterator_tag, CVT> {
             friend class list;
 
             using Iterator = list_base_node *;
-
-            Iterator current;
         public:
-            list_iterator() : current{} {}
-
-            explicit list_iterator(const Iterator &it) noexcept: current(it) {}
+            using value_type = CVT;
+            using pointer = CVT *;
+            using reference = CVT &;
+            using size_type = size_t;
+            using difference_type = ptrdiff_t;
+        private:
+            Iterator current;
+        public: // constructor
+            list_iterator() = default;
 
             list_iterator(const list_iterator &) = default;
 
-            list_iterator(list_iterator &&) noexcept = default;
+            explicit list_iterator(const Iterator &it) noexcept: current(it) {}
 
-            list_iterator &operator=(const list_iterator &) noexcept = default;
+            template<typename OV>
+            list_iterator(const list_iterator<OV> oth) noexcept: // NOLINT(google-explicit-constructor)
+                    current(oth.current) {}
 
-            ~list_iterator() = default;
-
-        public:
+        public: // ops
             reference operator*() const noexcept { return reinterpret_cast<list_node *>(current)->data; }
 
             pointer operator->() const noexcept {
                 return alloc_type::address(reinterpret_cast<list_node *>(current)->data);
             }
 
-        public:
             // forward
             list_iterator &operator++() noexcept {
-                current = current->next;
-                return *this;
+                return current = current->next, *this;
             }
 
             list_iterator operator++(int) noexcept {
-                Iterator old = current;
-                current = current->next;
-                return list_iterator(old);
+                list_iterator tmp = *this;
+                return ++*this, tmp;
             }
 
             // bi direct
             list_iterator &operator--() noexcept {
-                current = current->prev;
-                return *this;
+                return current = current->prev, *this;
             }
 
             list_iterator operator--(int) noexcept {
-                Iterator old = current;
-                current = current->prev;
-                return list_iterator(old);
+                list_iterator tmp = *this;
+                return --*this, tmp;
             }
 
             friend bool operator==(const list_iterator &lhs, const list_iterator &rhs) {
@@ -92,77 +92,10 @@ namespace ttl {
             }
 
             friend bool operator!=(const list_iterator &lhs, const list_iterator &rhs) {
-                return lhs.current != rhs.current;
+                return !(lhs.current == rhs.current);
             }
         };
 
-        class const_list_iterator : public ttl::iterator<ttl::bidirectional_iterator_tag, const T> {
-            friend class list;
-
-            using Iterator = const list_base_node *;
-
-            Iterator current;
-
-            list_iterator iter() const {
-                return list_iterator(const_cast<list_base_node *>(current));
-            }
-
-        public:
-            const_list_iterator() : current{} {}
-
-            explicit const_list_iterator(const Iterator &it) noexcept: current(it) {}
-
-            const_list_iterator// NOLINT(google-explicit-constructor)
-                    (const list_iterator &oth) noexcept: current(oth.current) {};
-
-            const_list_iterator(const const_list_iterator &) = default;
-
-            const_list_iterator(const_list_iterator &&) noexcept = default;
-
-            const_list_iterator &operator=(const const_list_iterator &) noexcept = default;
-
-            ~const_list_iterator() = default;
-
-        public:
-            reference operator*() const noexcept { return reinterpret_cast<const list_node *>(current)->data; }
-
-            pointer operator->() const noexcept {
-                return alloc_type::address(reinterpret_cast<const list_node *>(current)->data);
-            }
-
-        public:
-            // forward
-            const_list_iterator &operator++() noexcept {
-                current = current->next;
-                return *this;
-            }
-
-            const_list_iterator operator++(int) noexcept {
-                Iterator old = current;
-                current = current->next;
-                return const_list_iterator(old);
-            }
-
-            // bi direct
-            const_list_iterator &operator--() noexcept {
-                current = current->prev;
-                return *this;
-            }
-
-            const_list_iterator operator--(int) noexcept {
-                Iterator old = current;
-                current = current->prev;
-                return const_list_iterator(old);
-            }
-
-            friend bool operator==(const const_list_iterator &lhs, const const_list_iterator &rhs) {
-                return lhs.current == rhs.current;
-            }
-
-            friend bool operator!=(const const_list_iterator &lhs, const const_list_iterator &rhs) {
-                return lhs.current != rhs.current;
-            }
-        };
 #pragma endregion
     private:
         using alloc_type = ttl::allocator<T>;
@@ -171,8 +104,8 @@ namespace ttl {
     private:
         list_root root{};
     public: // iter
-        using iterator = list_iterator;
-        using const_iterator = const_list_iterator;
+        using iterator = list_iterator<value_type>;
+        using const_iterator = list_iterator<const value_type>;
         using reverse_iterator = ttl::reverse_iterator<iterator>;
         using const_reverse_iterator = ttl::reverse_iterator<const_iterator>;
     public: // constructor
@@ -350,26 +283,26 @@ namespace ttl {
         void clear() { destroy_all(); }
 
         iterator insert(const_iterator pos, const value_type &val) {
-            return insert_front_aux(pos.iter(), make_node_aux(val));
+            return insert_front_aux(pos, make_node_aux(val));
         }
 
         iterator insert(const_iterator pos, value_type &&val) {
-            return insert_front_aux(pos.iter(), make_node_aux(std::move(val)));
+            return insert_front_aux(pos, make_node_aux(std::move(val)));
         }
 
         iterator insert(const_iterator pos, size_type n, const value_type &val) {
-            if (n-- == 0) return pos.iter();
+            if (n-- == 0) return pos;
             --pos;
-            iterator ret = insert_back_aux(pos.iter(), make_node_aux(val)), cur = ret;
+            iterator ret = insert_back_aux(pos, make_node_aux(val)), cur = ret;
             while (n--) cur = insert_back_aux(cur, make_node_aux(val));
             return ret;
         }
 
         template<class InputIt>
         iterator insert(const_iterator pos, InputIt first, InputIt last) {
-            if (first == last) return pos.iter();
+            if (first == last) return pos;
             --pos;
-            iterator ret = insert_back_aux(pos.iter(), make_node_aux(*first++)), cur = ret;
+            iterator ret = insert_back_aux(pos, make_node_aux(*first++)), cur = ret;
             while (first != last) cur = insert_back_aux(cur, make_node_aux(*first++));
             return ret;
         }
@@ -380,12 +313,12 @@ namespace ttl {
 
         template<typename ...Args>
         iterator emplace(const_iterator pos, Args &&...args) {
-            return insert_front_aux(pos.iter(), make_node_aux(std::forward<Args>(args)...));
+            return insert_front_aux(pos, make_node_aux(std::forward<Args>(args)...));
         }
 
         iterator erase(const_iterator pos) {
             // pre->next , nxt->prev
-            list_base_node *cur = pos.iter().current;
+            list_base_node *cur = pos.current;
             list_base_node *pre = cur->prev, *nxt = cur->next;
             pre->next = nxt, nxt->prev = pre;
             destroy_node(cur);
@@ -393,16 +326,16 @@ namespace ttl {
         }
 
         iterator erase(const_iterator first, const_iterator last) {
-            if (first == last) return last.iter();
+            if (first == last) return last;
             // [first, last)
-            list_base_node *pre = first.iter().current->prev, *nxt = last.iter().current;
+            list_base_node *pre = first.current->prev, *nxt = last.current;
             for (list_base_node *cur = pre->next, *temp; cur != nxt;) {
                 temp = cur->next;
                 destroy_node(cur);
                 cur = temp;
             }
             pre->next = nxt, nxt->prev = pre;
-            return last.iter();
+            return last;
         }
 
         void pop_back() {
@@ -575,9 +508,9 @@ namespace ttl {
             if (first == last) return;
             size_type n = ttl::distance(first, last);
             this->root.size += n, oth.root.size -= n;
-            list_base_node *pre = first.iter().current->prev, *nxt = last.iter().current;
-            list_base_node *first_ptr = first.iter().current, *last_ptr = nxt->prev;
-            hook(pre, nxt), insert_front_aux(pos.iter(), first_ptr, last_ptr);
+            list_base_node *pre = first.current->prev, *nxt = last.current;
+            list_base_node *first_ptr = first.current, *last_ptr = nxt->prev;
+            hook(pre, nxt), insert_front_aux(pos, first_ptr, last_ptr);
         }
 
         size_type remove(const T &value) {
