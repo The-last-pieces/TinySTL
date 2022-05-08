@@ -32,18 +32,21 @@ namespace ttl::ttl_test {
 
         // 填充速度
         static void test2() {
+            const int n = 10000000, m = 1000000;
             std::allocator<std::string> allocator;
-            auto *ptr = allocator.allocate(10000000);
+            auto *ptr = allocator.allocate(n);
             TTL_STL_COMPARE_2(
                     {
-                        ttl::uninitialized_fill(ptr + 10000000 - 1000000, ptr + 10000000, "hello world");
+                        ttl::uninitialized_fill(ptr + n - m, ptr + n, "hello world");
                     },
                     {
-                        std::uninitialized_fill(ptr, ptr + 1000000, "hello world");
+                        std::uninitialized_fill(ptr, ptr + m, "hello world");
                     }, "fill"
             );
-            ttl::equal(ptr + 10000000 - 1000000, ptr + 10000000, ptr, ptr + 1000000);
-            allocator.deallocate(ptr, 10000000);
+            ttl::equal(ptr + n - m, ptr + n, ptr, ptr + m);
+            ttl::destroy(ptr, ptr + m);
+            ttl::destroy(ptr + n - m, ptr + n);
+            allocator.deallocate(ptr, n);
         }
     };
 }
