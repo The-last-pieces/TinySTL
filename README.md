@@ -104,6 +104,8 @@
   定长bitset
 - [ ] circular_buffer  
   环形缓冲区
+- [ ] bignum  
+  高精度浮点数(兼容整数)
 - [ ] skip_list  
   跳表
 - [ ] trie  
