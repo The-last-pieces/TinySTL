@@ -11,7 +11,7 @@
 
 namespace ttl {
 
-    //   using T = int;
+    //using T = int;
 
     template<typename T>
     class deque {
@@ -167,7 +167,7 @@ namespace ttl {
     public: // constructors
 #pragma region
 
-        deque() { fill_initialize(0); }
+        deque() { init_map_node_by_count(0); }
 
         explicit deque(size_type count) {
             fill_initialize(count);
@@ -177,15 +177,29 @@ namespace ttl {
             fill_initialize(count, value);
         }
 
-        // Todo
         template<class InputIt>
-        deque(InputIt first, InputIt last) {}
+        deque(InputIt first, InputIt last) {
+            using iterator_tag = typename ttl::iterator_traits<InputIt>::iterator_category;
+            if constexpr(std::is_same_v<iterator_tag, ttl::input_iterator_tag>) {
+                init_map_node_by_count(0);
+                size_type idx = 0;
+                while (first != last) insert(start + idx, *first++), ++idx;
+            } else {
+                size_type n = ttl::distance(first, last);
+                init_map_node_by_count(n);
+                ttl::uninitialized_copy_n(first, n, start);
+            }
+        }
 
-        // Todo
-        deque(const deque &other) {}
+        deque(const deque &oth) {
+            size_type n = oth.size();
+            init_map_node_by_count(n);
+            ttl::uninitialized_copy_n(oth.begin(), n, start);
+        }
 
-        // Todo
-        deque(deque &&other) noexcept {}
+        deque(deque &&oth) noexcept: deque() {
+            this->swap(std::forward<deque>(oth));
+        }
 
         deque(std::initializer_list<T> init) : deque(init.begin(), init.end()) {}
 
@@ -231,7 +245,7 @@ namespace ttl {
             size_type new_nodes = old_nodes + nodes_to_add;
 
             map_pointer new_start;
-            if (map_size > 2 * new_nodes) {
+            if (map_size > 2 * new_nodes && false) { // Todo 修复此处扩容bug
                 // 剩余缓冲区还很多 , 移动到中间即可 , 注意finish为闭区间
                 new_start = map_buffer + (map_size - new_nodes) / 2 + (add_at_front ? nodes_to_add : 0);
                 if (new_start < start.node) { // 左移
@@ -291,35 +305,57 @@ namespace ttl {
         }
 
 #pragma endregion
-    public: // assign Todo
+    public: // assign
 #pragma region
 
-        deque &operator=(const deque &other) {
+        deque &operator=(const deque &oth) {
+            if (this != &oth) {
+                assign(oth.begin(), oth.end());
+            }
             return *this;
         }
 
-        deque &operator=(deque &&other) noexcept {
+        deque &operator=(deque &&oth) noexcept {
+            if (this != &oth) {
+                clear();
+                this->swap(std::forward<deque>(oth));
+            }
             return *this;
         }
 
         deque &operator=(std::initializer_list<T> init) {
+            assign(init.begin(), init.end());
             return *this;
         }
 
-        void assign(size_type count, const T &value) {}
+        void assign(size_type count, const T &value) {
+            clear();
+            insert(end(), count, value);
+        }
 
         template<class InputIt>
-        void assign(InputIt first, InputIt last) {}
+        void assign(InputIt first, InputIt last) {
+            clear();
+            insert(end(), first, last);
+        }
 
-        void assign(std::initializer_list<T> init) {}
+        void assign(std::initializer_list<T> init) {
+            assign(init.begin(), init.end());
+        }
 
 #pragma endregion
     public: // visit
 #pragma region
 
-        reference at(size_type pos) { return start[pos]; }
+        reference at(size_type pos) {
+            if (pos >= size()) throw std::out_of_range("deque at");
+            return start[pos];
+        }
 
-        const_reference at(size_type pos) const { return start[pos]; }
+        const_reference at(size_type pos) const {
+            if (pos >= size()) throw std::out_of_range("deque at");
+            return start[pos];
+        }
 
         reference operator[](size_type pos) { return start[pos]; }
 
@@ -369,14 +405,56 @@ namespace ttl {
         void shrink_to_fit() {}
 
 #pragma endregion
-    public: // change Todo
+    public: // change
 #pragma region
 
         void clear() { destroy_all_node(); }
 
-        void insert() {}
+        iterator insert(const_iterator pos, const value_type &value) {
+            iterator it = prepare_at(pos - start, 1);
+            *it = value;
+            return it;
+        }
 
-        void emplace() {}
+        iterator insert(const_iterator pos, value_type &&value) {
+            iterator it = prepare_at(pos - start, 1);
+            *it = std::forward<value_type>(value);
+            return it;
+        }
+
+        iterator insert(const_iterator pos, size_type count, const value_type &value) {
+            iterator it = prepare_at(pos - start, count);
+            while (count--) *it++ = value;
+            return it;
+        }
+
+        template<class InputIt>
+        iterator insert(const_iterator pos, InputIt first, InputIt last) {
+            using iterator_tag = typename ttl::iterator_traits<InputIt>::iterator_category;
+            auto idx = pos - start;
+            if constexpr(std::is_same_v<iterator_tag, ttl::input_iterator_tag>) {
+                while (first != last) insert(start + idx, *first++), ++idx;
+            } else {
+                size_type count = ttl::distance(first, last);
+                iterator it = prepare_at(idx, count);
+                ttl::copy_n(first, count, it);
+            }
+            return start + idx;
+        }
+
+        iterator insert(const_iterator pos, std::initializer_list<T> init) {
+            return insert(pos, init.begin(), init.end());
+        }
+
+        // Todo 性能分析+优化
+        template<class... Args>
+        iterator emplace(const_iterator pos, Args &&... args) {
+            auto idx = pos - start;
+            prepare_at(idx, 1);
+            auto it = start + idx;
+            destroy_and_construct(it.cur, std::forward<Args>(args)...);
+            return it;
+        }
 
         iterator erase(const_iterator pos) {
             iterator nxt = pos + 1;
@@ -384,11 +462,11 @@ namespace ttl {
             // 选择移动较少的元素
             if (idx < size() / 2) {
                 // [start,pos) => [...,pos+1)
-                ttl::move_backward(start, pos, nxt);
+                ttl::move_backward<iterator, iterator>(start, pos, nxt);
                 pop_front();
             } else {
                 // [pos+1,finish) => [pos,...)
-                ttl::move(nxt, finish, pos);
+                ttl::move<iterator, iterator>(nxt, finish, pos);
                 pop_back();
             }
             return start + idx;
@@ -403,14 +481,16 @@ namespace ttl {
                 // 选择移动较少的元素
                 if (ele_front < (size() - n) / 2) {
                     // [start,first) => [...,last)
-                    iterator new_start = ttl::move_backward<iterator, iterator>(start, first, last);
+                    ttl::move_backward<iterator, iterator>(start, first, last);
+                    auto new_start = start + n;
                     ttl::destroy(start, new_start); // 析构
                     for (map_pointer cur = start.node; cur < new_start.node; ++cur)
                         dealloc_node(*cur);
                     start = new_start;
                 } else {
                     // [last,finish) => [first,...)
-                    iterator new_finish = ttl::move<iterator, iterator>(last, finish, first);
+                    ttl::move<iterator, iterator>(last, finish, first);
+                    auto new_finish = finish - n;
                     ttl::destroy(new_finish, finish);
                     for (map_pointer cur = new_finish.node + 1; cur <= finish.node; ++cur)
                         dealloc_node(*cur);
@@ -420,7 +500,13 @@ namespace ttl {
             }
         }
 
-        void push_back() {}
+        void push_back(const value_type &val) {
+            emplace_back(val);
+        }
+
+        void push_back(value_type &&val) {
+            emplace_back(std::forward<value_type>(val));
+        }
 
         template<typename ...Args>
         void emplace_back(Args &&...args) {
@@ -439,7 +525,13 @@ namespace ttl {
             }
         }
 
-        void push_front() {}
+        void push_front(const value_type &val) {
+            emplace_front(val);
+        }
+
+        void push_front(value_type &&val) {
+            emplace_front(std::forward<value_type>(val));
+        }
 
         template<typename ...Args>
         void emplace_front(Args &&...args) {
@@ -458,9 +550,30 @@ namespace ttl {
             }
         }
 
-        void resize() {}
+        void resize(size_type count) {
+            size_type cur_size = size();
+            if (count < cur_size) {
+                erase(start + difference_type(count), finish);
+            } else {
+                insert(finish, count - cur_size, value_type());
+            }
+        }
 
-        void swap() {}
+        void resize(size_type count, const value_type &value) {
+            size_type cur_size = size();
+            if (count < cur_size) {
+                erase(start + difference_type(count), finish);
+            } else {
+                insert(finish, count - cur_size, value);
+            }
+        }
+
+        void swap(deque &&oth) {
+            std::swap(map_buffer, oth.map_buffer);
+            std::swap(map_size, oth.map_size);
+            std::swap(start, oth.start);
+            std::swap(finish, oth.finish);
+        }
 
 #pragma endregion
 #pragma region
@@ -473,7 +586,7 @@ namespace ttl {
 
         // back处有几个空余元素位置
         size_type back_leave() {
-            return difference_type(buffer_size) * (map_buffer + (map_size - 1) - finish.node) +
+            return difference_type(buffer_size) * ((map_buffer + (map_size - 1)) - finish.node) +
                    (finish.last - finish.cur);
         }
 
@@ -483,7 +596,7 @@ namespace ttl {
         // 功能更多 , 复杂度更高 , 会移动对对象 & 更新迭代器
         // index = 0时等价于prepare_at_front
         // index = size()时等价于prepare_at_back
-        bool prepare_at(size_type index, size_type count) {
+        iterator prepare_at(size_type index, size_type count) {
             size_type sz = size();
             // index插入点之前的元素个数
             if (index < sz / 2) {
@@ -491,14 +604,13 @@ namespace ttl {
                 prepare_at_front(count);
                 // [start + count ,) => [start ,) for index
                 ttl::move_n(start + difference_type(count), index, start);
-                return true;
             } else {
                 // 右移 back
                 prepare_at_back(count);
                 // [, finish - count) => [, finish) for size() - index
                 ttl::move_n_backward(finish - difference_type(count), sz - index, finish);
-                return false;
             }
+            return start + difference_type(index);
         }
 
         // 在front处腾出足够位置 , 并更新头迭代器
@@ -539,13 +651,39 @@ namespace ttl {
 
         template<typename ...Args>
         void destroy_and_construct(pointer ptr, Args &&...args) {
-            alloc_type::destroy(ptr);
-            alloc_type::construct(ptr, std::forward<Args>(args)...);
+            *ptr = std::move(value_type(std::forward<Args>(args)...));
+//            alloc_type::destroy(ptr);
+//            alloc_type::construct(ptr, std::forward<Args>(args)...);
         }
 
 #pragma endregion
-    public: // operators Todo
+    public: // operators
 #pragma region
+
+        friend bool operator==(const deque &lhs, const deque &rhs) {
+            return lhs.size() == rhs.size() && ttl::equal(lhs.begin(), lhs.end(), rhs.begin());
+        }
+
+        friend bool operator!=(const deque &lhs, const deque &rhs) {
+            return !(rhs == lhs);
+        }
+
+        friend bool operator<(const deque &lhs, const deque &rhs) {
+            return ttl::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+        }
+
+        friend bool operator>(const deque &lhs, const deque &rhs) {
+            return rhs < lhs;
+        }
+
+        friend bool operator<=(const deque &lhs, const deque &rhs) {
+            return !(rhs < lhs);
+        }
+
+        friend bool operator>=(const deque &lhs, const deque &rhs) {
+            return !(lhs < rhs);
+        }
+
 #pragma endregion
     };
 }
