@@ -191,13 +191,13 @@ namespace ttl {
 
         ~deque() {
             destroy_all_node();
-            dealloc_node(*start.node);
+            dealloc_node(start.first);
             map_alloc_type::deallocate(map_buffer, map_size);
             map_buffer = nullptr, map_size = 0;
         }
 
 #pragma endregion
-    private: // memory Todo
+    private: // memory
 #pragma region
 
         static pointer alloc_node() {
@@ -283,13 +283,13 @@ namespace ttl {
             if (start.node != finish.node) {
                 ttl::destroy(start.cur, start.last);
                 ttl::destroy(finish.first, finish.cur);
-                dealloc_node(*finish.node);
+                dealloc_node(finish.first);
             } else {
                 ttl::destroy(start.cur, finish.cur); // 头结点需要保留
             }
             finish = start;
         }
-        // 回收所有map_pointer
+
 #pragma endregion
     public: // assign Todo
 #pragma region
@@ -378,27 +378,85 @@ namespace ttl {
 
         void emplace() {}
 
-        void erase() {}
+        iterator erase(const_iterator pos) {
+            iterator nxt = pos + 1;
+            difference_type idx = pos - start;
+            // 选择移动较少的元素
+            if (idx < size() / 2) {
+                // [start,pos) => [...,pos+1)
+                ttl::move_backward(start, pos, nxt);
+                pop_front();
+            } else {
+                // [pos+1,finish) => [pos,...)
+                ttl::move(nxt, finish, pos);
+                pop_back();
+            }
+            return start + idx;
+        }
+
+        iterator erase(const_iterator first, const_iterator last) {
+            if (first == start && last == finish) {
+                return clear(), finish;
+            } else {
+                difference_type n = last - first; // 清除区间的长度
+                difference_type ele_front = first - start; // 前面有几个节点
+                // 选择移动较少的元素
+                if (ele_front < (size() - n) / 2) {
+                    // [start,first) => [...,last)
+                    iterator new_start = ttl::move_backward<iterator, iterator>(start, first, last);
+                    ttl::destroy(start, new_start); // 析构
+                    for (map_pointer cur = start.node; cur < new_start.node; ++cur)
+                        dealloc_node(*cur);
+                    start = new_start;
+                } else {
+                    // [last,finish) => [first,...)
+                    iterator new_finish = ttl::move<iterator, iterator>(last, finish, first);
+                    ttl::destroy(new_finish, finish);
+                    for (map_pointer cur = new_finish.node + 1; cur <= finish.node; ++cur)
+                        dealloc_node(*cur);
+                    finish = new_finish;
+                }
+                return start + ele_front;
+            }
+        }
 
         void push_back() {}
 
         template<typename ...Args>
         void emplace_back(Args &&...args) {
             prepare_at_back(1);
-            alloc_type::construct((finish - 1).cur, std::forward<Args>(args)...);
+            destroy_and_construct((finish - 1).cur, std::forward<Args>(args)...);
         }
 
-        void pop_back() {}
+        void pop_back() {
+            if (finish.cur != finish.first) {
+                alloc_type::destroy(--finish.cur);
+            } else {  // back缓冲区只有0个元素的时候调用
+                dealloc_node(finish.first);
+                finish.set_node(finish.node - 1);
+                finish.cur = finish.last - 1;
+                alloc_type::destroy(finish.cur);
+            }
+        }
 
         void push_front() {}
 
         template<typename ...Args>
         void emplace_front(Args &&...args) {
             prepare_at_front(1);
-            alloc_type::construct(start.cur, std::forward<Args>(args)...);
+            destroy_and_construct(start.cur, std::forward<Args>(args)...);
         }
 
-        void pop_front() {}
+        void pop_front() {
+            if (start.cur != start.last - 1) {
+                alloc_type::destroy(start.cur++);
+            } else { // front缓冲区只有一个元素的时候调用
+                alloc_type::destroy(start.cur);
+                dealloc_node(start.first);
+                start.set_node(start.node + 1);
+                start.cur = start.first;
+            }
+        }
 
         void resize() {}
 
@@ -479,11 +537,14 @@ namespace ttl {
             finish += difference_type(count);
         }
 
+        template<typename ...Args>
+        void destroy_and_construct(pointer ptr, Args &&...args) {
+            alloc_type::destroy(ptr);
+            alloc_type::construct(ptr, std::forward<Args>(args)...);
+        }
+
 #pragma endregion
     public: // operators Todo
-#pragma region
-#pragma endregion
-    private: // helper Todo
 #pragma region
 #pragma endregion
     };
