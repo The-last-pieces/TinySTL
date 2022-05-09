@@ -62,7 +62,7 @@
   动态数组
 - [x] list  
   双向链表
-- [ ] deque  
+- [x] deque  
   双端列表
 - [ ] stack  
   栈
