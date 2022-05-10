@@ -25,9 +25,8 @@ namespace ttl::ttl_test {
             ttl::allocator<std::string> tv;
             std::allocator<std::string> sv;
             TTL_STL_COMPARE(tv, sv, {
-                for (int i = 1; i <= 1000; ++i) v.deallocate(v.allocate(i), i);
-            }, "alloc speed");
-
+                for (int i = 1; i <= 10000; ++i) v.deallocate(v.allocate(i), i);
+            }, "memory alloc");
         }
 
         // 填充速度
@@ -41,7 +40,7 @@ namespace ttl::ttl_test {
                     },
                     {
                         std::uninitialized_fill(ptr, ptr + m, "hello world");
-                    }, "fill"
+                    }, "memory fill"
             );
             ttl::equal(ptr + n - m, ptr + n, ptr, ptr + m);
             ttl::destroy(ptr, ptr + m);
