@@ -40,6 +40,9 @@ namespace ttl {
 
     template<typename ForwardIt, typename OutputIt>
     OutputIt move(ForwardIt first, ForwardIt last, OutputIt result) {
+        if constexpr(std::is_pod_v<std::remove_reference_t<decltype(*first)>>) {
+            return std::move(first, last, result);
+        }
         while (first != last) *result++ = std::move(*first++);
         return result;
     }
@@ -52,6 +55,9 @@ namespace ttl {
 
     template<class BidirIt1, class BidirIt2>
     BidirIt2 move_backward(BidirIt1 first, BidirIt1 last, BidirIt2 result_back) {
+        if constexpr(std::is_pod_v<std::remove_reference_t<decltype(*first)>>) {
+            return std::move_backward(first, last, result_back);
+        }
         while (first != last) *(--result_back) = std::move(*(--last));
         return result_back;
     }
