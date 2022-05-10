@@ -20,6 +20,8 @@ namespace ttl::ttl_test {
             test3();
             test4();
             test5();
+            test6();
+            test7();
         }
 
     private:
@@ -34,9 +36,7 @@ namespace ttl::ttl_test {
         }
 
         static void test1() {
-            auto arr = randArray<std::string>(
-                    10000,
-                    []() -> std::string { return randStr(26); });
+            auto arr = randStrArray(10000, 26);
             ttl::vector<std::string> ta;
             std::vector<std::string> sa;
             TTL_STL_COMPARE(ta, sa, {
@@ -46,68 +46,72 @@ namespace ttl::ttl_test {
         }
 
         static void test2() {
-            std::vector<int> sa;
-            ttl::vector<int> ta;
+            auto rd = randIntArray(88888);
+            auto rdi = randIntArray(8888);
+            auto rdv = randIntArray(88888);
+            std::vector<int> sa(rd.begin(), rd.end());
+            ttl::vector<int> ta(rd.begin(), rd.end());
             TTL_STL_COMPARE(ta, sa, {
-                v.insert(v.end(), {1, 2, 3});
-                v.insert(v.end(), 100u, 4);
-                v.insert(v.end() - 50, 10000u, 5);
-                v.insert(v.end(), 100u, 6);
-                v.insert(v.end() - 50, 1000u, 7);
-                v.erase(v.end() - 2);
-                v.erase(v.begin() + 1123, v.end() - 3456);
-            }, "vector pod insert & erase");
+                for (auto i: rdi) v.insert(v.begin() + i % v.size(), rdv[i % rdv.size()]);
+            }, "vector pod insert");
             same(sa, ta);
         }
 
         static void test3() {
-            std::vector<std::string> sa;
-            ttl::vector<std::string> ta;
+            auto rd = randStrArray(8888, 10);
+            auto rdi = randIntArray(888);
+            auto rdv = randStrArray(88888, 10);
+            std::vector<std::string> sa(rd.begin(), rd.end());
+            ttl::vector<std::string> ta(rd.begin(), rd.end());
             TTL_STL_COMPARE(ta, sa, {
-                v.insert(v.end(), {"asd", "hod", "qwe"});
-                v.resize(100);
-                v.insert(v.end(), 100, "hello");
-                v.pop_back();
-                v.emplace_back("asd");
-                v.insert(v.end() - 50, 1000, "???");
-                v.pop_back();
-                v.resize(10000, "hhhh");
-                v.pop_back();
-                v.push_back("www");
-                v.insert(v.end(), 10000, "world");
-                v.emplace_back("www");
-                v.insert(v.end() - 5000, 12030, "!!!");
-                v.emplace_back("zxd");
-                v.resize(10000);
-                v.erase(v.end() - 122);
-                v.erase(v.begin() + 1123, v.end() - 3456);
-            }, "vector class insert & erase");
+                for (auto i: rdi) v.insert(v.begin() + i % v.size(), rdv[i % rdv.size()]);
+            }, "vector class insert");
             same(sa, ta);
         }
 
         static void test4() {
-            std::vector<std::string> sa;
-            ttl::vector<std::string> ta;
+            auto rd = randIntArray(100000);
+            std::vector<int> sa(rd.begin(), rd.end());
+            ttl::vector<int> ta(rd.begin(), rd.end());
+            auto rde = randIntArray(10000);
             TTL_STL_COMPARE(ta, sa, {
-                v.operator=({"1", "2"});
-                v.assign({"asd", "bds"});
-                v.assign(10000, "1234");
-                v.insert((v.rbegin() + 1020).base(), 123, "asd");
-            }, "vector assign");
+                for (auto i: rde) v.erase(v.begin() + (i % v.size()));
+            }, "vector pod erase");
             same(sa, ta);
         }
 
         static void test5() {
+            auto rd = randStrArray(10000, 26);
+            auto rde = randIntArray(1000);
+            std::vector<std::string> sa(rd.begin(), rd.end());
+            ttl::vector<std::string> ta(rd.begin(), rd.end());
+            TTL_STL_COMPARE(ta, sa, {
+                for (auto i: rde) v.erase(v.begin() + i % v.size());
+            }, "vector class erase");
+            same(sa, ta);
+        }
+
+        static void test6() {
             std::vector<std::string> sa;
             ttl::vector<std::string> ta;
+            auto rdi = randIntArray(1000);
+            auto rd = randStrArray(10000, 10);
             TTL_STL_COMPARE(ta, sa, {
-                v.assign({"asd", "bds"});
-                v.assign(10000, "1234");
-                v.resize(100);
-                v.resize(1000, "ab ab");
-                v.resize(10000, "12345");
-                v.resize(9900);
-                v.resize(99);
+                for (auto i: rdi) {
+                    i %= rd.size() / 3;
+                    v.assign(rd.begin() + i, rd.begin() + i * 3);
+                }
+            }, "vector assign");
+            same(sa, ta);
+        }
+
+        static void test7() {
+            std::vector<std::string> sa;
+            ttl::vector<std::string> ta;
+            auto rds = randIntArray(1000);
+            auto rd = randStrArray(10000, 10);
+            TTL_STL_COMPARE(ta, sa, {
+                for (auto s: rds) v.resize(s % 100000, rd[s % 10000]);
             }, "vector resize");
             same(sa, ta);
         }
