@@ -51,7 +51,24 @@ namespace ttl::ttl_test {
 
 
     void report(time_type s_cost, time_type t_cost) {
-        auto str = s_cost == t_cost ? "same" : (s_cost > t_cost ? "win" : "lose");
+        static struct recorder {
+            int win = 0, lose = 0, same = 0;
+
+            auto record(time_type s, time_type t) {
+                if (s == t) {
+                    return ++same, "same";
+                } else if (s > t) {
+                    return ++win, "win";
+                } else {
+                    return ++lose, "lose";
+                }
+            }
+
+            ~recorder() {
+                printf("total cost : %ds , win : %d, lose : %d , same : %d", clock() / 1000, win, lose, same);
+            }
+        } recorder;
+        auto str = recorder.record(s_cost, t_cost);
         auto rate = double(t_cost) / double(s_cost) * 100;
         if (s_cost < 10000 && t_cost < 10000) {
             printf(" %.2lf/%.2lf \tns , %-6.2lf%% %s\n", double(s_cost), double(t_cost), rate, str);
@@ -92,6 +109,10 @@ namespace ttl::ttl_test {
 
     std::vector<int> randIntArray(int len) {
         return randArray<int>(len, []() -> int { return randInt(); });
+    }
+
+    std::vector<std::string> randStrArray(int len, int sz) {
+        return randArray<std::string>(len, [=]() -> std::string { return randStr(sz); });
     }
 }
 
