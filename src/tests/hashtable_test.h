@@ -99,9 +99,7 @@ namespace ttl::ttl_test {
         static void test5() {
             ttl::hashtable<std::string, std::string> tm;
             std::unordered_multimap<std::string, std::string> sm;
-            auto rd = randArray<std::string>(
-                    10000,
-                    []() -> std::string { return randStr(10); });
+            auto rd = randStrArray(100000, 10);
             TTL_STL_COMPARE_2(
                     {
                         for (auto x: rd)tm.emplace_unique(x, x);
@@ -115,9 +113,7 @@ namespace ttl::ttl_test {
         static void test6() {
             ttl::hashtable<std::string, std::string> tm;
             std::unordered_multimap<std::string, std::string> sm;
-            auto rd = randArray<std::string>(
-                    10000,
-                    []() -> std::string { return randStr(10); });
+            auto rd = randStrArray(100000, 10);
             TTL_STL_COMPARE_2(
                     {
                         for (auto x: rd)tm.emplace_equal(x, x);
