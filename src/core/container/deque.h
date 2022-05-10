@@ -183,7 +183,7 @@ namespace ttl {
             if constexpr(std::is_same_v<iterator_tag, ttl::input_iterator_tag>) {
                 init_map_node_by_count(0);
                 size_type idx = 0;
-                while (first != last) insert(start + idx, *first++), ++idx;
+                while (first != last) insert(finish, *first++), ++idx;
             } else {
                 size_type n = ttl::distance(first, last);
                 init_map_node_by_count(n);

@@ -59,8 +59,14 @@ namespace ttl {
 
         template<typename InputIt>
         vector(InputIt first, InputIt last) {
-            create_storage(ttl::distance(first, last));
-            finish = ttl::uninitialized_copy(first, last, start);
+            using iterator_tag = typename ttl::iterator_traits<InputIt>::iterator_category;
+            if constexpr(std::is_same_v<iterator_tag, ttl::input_iterator_tag>) {
+                while (first != last) emplace_back(*first++);
+            } else {
+                size_type n = ttl::distance(first, last);
+                create_storage(n);
+                finish = ttl::uninitialized_copy_n(first, n, start);
+            }
         }
 
         vector(std::initializer_list<T> init) {
@@ -232,12 +238,17 @@ namespace ttl {
             return begin() + i + n;
         }
 
-        // Todo 特化输入迭代器
         template<typename InputIt>
         iterator insert(const_iterator pos, InputIt first, InputIt last) {
-            size_t i = pos - cbegin(), n = ttl::distance(first, last);
-            m_prepare_insert(i, n);
-            ttl::uninitialized_copy(first, last, begin() + i);
+            size_t i = pos - cbegin(), n = 0;
+            using iterator_tag = typename ttl::iterator_traits<InputIt>::iterator_category;
+            if constexpr(std::is_same_v<iterator_tag, ttl::input_iterator_tag>) {
+                while (first != last) emplace(start + i, *first++), ++n;
+            } else {
+                n = ttl::distance(first, last);
+                m_prepare_insert(i, n);
+                ttl::uninitialized_copy(first, last, begin() + i);
+            }
             return begin() + i + n;
         }
 
@@ -351,7 +362,7 @@ namespace ttl {
         }
 
 #pragma endregion
-    private: // helper  Todo 使用memmove优化
+    private: // helper
 #pragma region
 
         // 移除一个元素
@@ -445,7 +456,7 @@ namespace ttl {
             if (new_cap != old_cap) {
                 auto new_start = alloc_type::allocate(new_cap);
                 auto ne_finish = ttl::uninitialized_move(start, finish, new_start);
-                ttl::destroy(start, finish); // Todo 优化
+                ttl::destroy(start, finish);
                 alloc_type::deallocate(start, old_cap);
                 start = new_start, finish = ne_finish;
                 end_of_storage = start + new_cap;
