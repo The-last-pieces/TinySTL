@@ -365,7 +365,9 @@ namespace ttl {
             if (first >= last) return last;
             if (first == end()) return end();
             // [last, end()) => [first, first + end()-last)
-            first = ttl::move(last, end(), first);
+            first = iterator(ttl::move(
+                    const_cast<pointer>(last.base()), finish,
+                    const_cast<pointer>(first.base())));
             ttl::destroy(first, end());
             finish = first.base();
             return first;
