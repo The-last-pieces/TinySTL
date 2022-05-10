@@ -31,7 +31,7 @@ namespace ttl::ttl_test {
         static void test1() {
             ttl::unordered_map<int, int> tm;
             std::unordered_map<int, int> sm;
-            std::vector<int> rd = randIntArray(10000);
+            std::vector<int> rd = randIntArray(100000);
             TTL_STL_COMPARE(tm, sm, {
                 for (auto x: rd) v[x] = x;
             }, "u_map insert");
