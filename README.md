@@ -22,6 +22,42 @@
 
 # 项目结构
 
+## 文件速览
+
+```
+- src
+  - core                  # 项目主体实现
+    - adapter             # 适配器容器
+      - priority_queue.h  # 优先队列
+    - algorithm           # 算法相关
+      - algorithm.h
+    - allocator           # 分配相关
+      - allocator.h     
+    - container           # 容器
+      - expand            # 扩展容器
+        - avl_tree.h      # 平衡二叉搜索树
+        - bitset.h        # 位集
+      - private           # 某些容器的可复用实现
+        - hashtable.h     # 哈希表
+      - deque.h           # 双端队列
+      - list.h            # 双向链表
+      - unordered_map     # 无序单映射
+      - vector.h          # 动态数组
+    - functor             # 函数相关
+      - function.h
+    - iterator            # 迭代器相关
+      - iterator.h
+    - normal              # 基础库相关
+      - smart_ptr.h       # 智能指针
+      - tuple.h           # 元组
+  - tests                 # core中大部分模块的测试代码
+    - *_test.h            # *.h的测试代码
+  - utils                 # 通用工具
+    - profiler.h          # 计时器
+    - test_helper.h       # 辅助测试的宏和函数
+  - main.cpp              # 调用所有测试用例
+```
+
 ## 通用工具库
 
 - [ ] pair  
@@ -110,6 +146,12 @@
   跳表
 - [ ] trie  
   字典树
+- [ ] DAT(Double Array Trie)  
+  字典树的压缩结构
+- [ ] ac_trie  
+  AC自动机(trie+kmp)
+- [ ] regex  
+  正则表达式(string=>NFA=>DFA)
 - [ ] binary_indexed_tree  
   树状数组
 - [ ] segment_tree    
