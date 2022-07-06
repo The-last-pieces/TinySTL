@@ -33,4 +33,13 @@ add_executable(tinySTL
         src/core/container/expand/bitset.h
         src/tests/bitset_test.h
         src/core/container/deque.h
-        src/tests/deque_test.h)
+        src/tests/deque_test.h
+        src/core/container/expand/avl_tree.h
+        src/core/functor/function.h
+        src/core/normal/tuple.h
+        src/core/normal/smart_ptr.h
+        src/tests/smart_ptr_test.h
+        src/core/container/private/bs_tree.h
+        src/tests/bs_tree_test.h
+        src/core/container/expand/segment_tree.h
+        src/tests/segment_tree_test.h)
