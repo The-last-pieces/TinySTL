@@ -37,6 +37,7 @@
       - expand            # 扩展容器
         - avl_tree.h      # !平衡二叉搜索树
         - bitset.h        # 位集
+        - segment_tree.h  # 线段树
       - private           # 某些容器的可复用实现
         - hashtable.h     # 哈希表
       - deque.h           # 双端队列
@@ -154,7 +155,7 @@
   正则表达式(string=>NFA=>DFA)
 - [ ] binary_indexed_tree  
   树状数组
-- [ ] segment_tree    
+- [x] segment_tree    
   线段树
 - [ ] AVL_tree  
   平衡二叉树
