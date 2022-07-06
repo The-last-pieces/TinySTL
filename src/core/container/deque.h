@@ -55,7 +55,7 @@ namespace ttl {
             deque_iterator(const deque_iterator &) = default;
 
             template<typename OV>
-            deque_iterator(const deque_iterator<OV> oth) noexcept: // NOLINT(google-explicit-constructor)
+            deque_iterator(const deque_iterator<OV> &oth) noexcept: // NOLINT(google-explicit-constructor)
                     cur(const_cast<pointer>(oth.cur)),
                     first(const_cast<pointer>(oth.first)),
                     last(const_cast<pointer>(oth.last)),
