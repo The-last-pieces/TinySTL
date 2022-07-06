@@ -79,6 +79,52 @@ namespace ttl {
      * 二分搜索操作(需要已排序)
      */
 
+    // 在离散区间[l,r]搜索一个x , 使得predict(y) = y >= x ? true : false
+    // 等价的描述是 , 求x 使得 predict([l, x-1]) === false , predict([x,r]) === true
+    // predict必须满足 : predict([l,r])是单调递增的 , 即满足规则:false*true*
+    // 返回是否存在这样的值,如果有则填充result
+    template<typename IndexType, typename Predictor>
+    bool search_min(IndexType l, IndexType r, IndexType &result, Predictor predict) {
+        static_assert(std::is_integral_v<IndexType>);
+        while (true) {
+            // 解区间的长度
+            auto len = r - l + 1;
+            // 解不存在
+            if (len <= 0) return false;
+            // 只剩一个可能的解,填充并检测
+            if (len == 1) return result = l, predict(l);
+            // 分割为两个子区间, [l, mid] , [mid+1, r]
+            auto mid = l + (r - l) / 2;
+            // 因为目标是p(mid)==true && p(mid-1)==false
+            // 如果p(mid)==true,那么>mid的不可能是解,因为p(v)==p(v-1)==true,所以新的解区间是[l,mid]
+            // 如果p(mid)==false,那么<=mid不可能是解,因为p(v)==p(v-1)==false,所以新的解区间是[mid+1,r]
+            predict(mid) ? r = mid : l = mid + 1;
+        }
+    }
+
+    // 在离散区间[l,r]搜索一个x , 使得predict(y) = y <= x ? true : false
+    // 等价的描述是 , 求x 使得 predict([l, x]) === true , predict([x+1,r]) === false
+    // predict必须满足 : predict([l,r])是单调递减的 , 即满足规则:true*false*
+    // 返回是否存在这样的值,如果有则填充result
+    template<typename IndexType, typename Predictor>
+    bool search_max(IndexType l, IndexType r, IndexType &result, Predictor predict) {
+        static_assert(std::is_integral_v<IndexType>);
+        while (true) {
+            // 解区间的长度
+            auto len = r - l + 1;
+            // 解不存在
+            if (len <= 0) return false;
+            // 只剩一个可能的解,填充并检测
+            if (len == 1) return result = l, predict(l);
+            // 分割为两个子区间, [l, mid-1] , [mid, r]
+            auto mid = r - (r - l) / 2;
+            // 因为目标是p(mid)==true && p(mid+1)==false
+            // 如果p(mid)==true,那么v<mid的不可能是解,因为p(v)==p(v+1)==true,所以新的解区间是[mid,r]
+            // 如果p(mid)==false,那么>=mid的不可能是解,因为p(v)==p(v+1)==false,所以新的解区间是[l,mid-1]
+            predict(mid) ? l = mid : r = mid - 1;
+        }
+    }
+
     /*
      * 集合操作(需要已排序)
      */
