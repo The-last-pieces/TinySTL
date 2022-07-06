@@ -77,6 +77,7 @@ namespace ttl::ttl_test {
         }
     }
 
+    // [l,r)
     int randInt(int l, int r) {
         static auto seed = 0;//time(nullptr);
         static auto maker =
@@ -84,9 +85,16 @@ namespace ttl::ttl_test {
         return int(maker() % (r - l)) + l;
     }
 
+    // [0,up)
     int randInt(int up) { return randInt(0, up); }
 
+    // [0,RAND_MAX)
     int randInt() { return randInt(0, RAND_MAX); }
+
+    // allow[randInt(0,len)]
+    int randInt(const std::vector<int> &allow) {
+        return allow[randInt((int) allow.size())];
+    }
 
     std::string randStr(int len, const char *base = nullptr) {
         std::string ret;
