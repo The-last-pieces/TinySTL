@@ -36,8 +36,12 @@
     - container           # 容器
       - expand            # 扩展容器
         - avl_tree.h      # !平衡二叉搜索树
+        - bignum.h        # !高精度实数
         - bitset.h        # 位集
+        - lru_cache.h     # LRU缓存
         - segment_tree.h  # 线段树
+        - trie.h          # !前缀树(也称字典树)
+        - union_set.h     # 并查集
       - private           # 某些容器的可复用实现
         - hashtable.h     # 哈希表
       - deque.h           # 双端队列
