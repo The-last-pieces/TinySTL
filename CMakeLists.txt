@@ -42,4 +42,8 @@ add_executable(tinySTL
         src/core/container/private/bs_tree.h
         src/tests/bs_tree_test.h
         src/core/container/expand/segment_tree.h
-        src/tests/segment_tree_test.h)
+        src/tests/segment_tree_test.h
+        src/core/container/expand/trie.h
+        src/core/container/expand/union_set.h
+        src/core/container/expand/lru_map.h
+        src/core/container/expand/bignum.h)
