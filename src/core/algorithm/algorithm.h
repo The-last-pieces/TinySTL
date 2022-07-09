@@ -86,20 +86,17 @@ namespace ttl {
     template<typename IndexType, typename Predictor>
     bool search_min(IndexType l, IndexType r, IndexType &result, Predictor predict) {
         static_assert(std::is_integral_v<IndexType>);
-        while (true) {
-            // 解区间的长度
-            auto len = r - l + 1;
-            // 解不存在
-            if (len <= 0) return false;
-            // 只剩一个可能的解,填充并检测
-            if (len == 1) return result = l, predict(l);
-            // 分割为两个子区间, [l, mid] , [mid+1, r]
+        if (l > r) return false;
+        while (l < r) {
+            // 构造左中位数
             auto mid = l + (r - l) / 2;
             // 因为目标是p(mid)==true && p(mid-1)==false
             // 如果p(mid)==true,那么>mid的不可能是解,因为p(v)==p(v-1)==true,所以新的解区间是[l,mid]
             // 如果p(mid)==false,那么<=mid不可能是解,因为p(v)==p(v-1)==false,所以新的解区间是[mid+1,r]
             predict(mid) ? r = mid : l = mid + 1;
         }
+        // 此时l==r,填充并检测
+        return result = l, predict(l);
     }
 
     // 在离散区间[l,r]搜索一个x , 使得predict(y) = y <= x ? true : false
@@ -109,20 +106,17 @@ namespace ttl {
     template<typename IndexType, typename Predictor>
     bool search_max(IndexType l, IndexType r, IndexType &result, Predictor predict) {
         static_assert(std::is_integral_v<IndexType>);
-        while (true) {
-            // 解区间的长度
-            auto len = r - l + 1;
-            // 解不存在
-            if (len <= 0) return false;
-            // 只剩一个可能的解,填充并检测
-            if (len == 1) return result = l, predict(l);
-            // 分割为两个子区间, [l, mid-1] , [mid, r]
+        if (l > r) return false;
+        while (l < r) {
+            // 构造右中位数
             auto mid = r - (r - l) / 2;
             // 因为目标是p(mid)==true && p(mid+1)==false
             // 如果p(mid)==true,那么v<mid的不可能是解,因为p(v)==p(v+1)==true,所以新的解区间是[mid,r]
             // 如果p(mid)==false,那么>=mid的不可能是解,因为p(v)==p(v+1)==false,所以新的解区间是[l,mid-1]
             predict(mid) ? l = mid : r = mid - 1;
         }
+        // 此时l==r,填充并检测
+        return result = l, predict(l);
     }
 
     /*
